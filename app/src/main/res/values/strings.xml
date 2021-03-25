@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Трекер привычек</string>
+    <string name="name_field_title">Название</string>
+    <string name="description_field_title">Описание</string>
+    <string name="priority_field_title">Приоритет</string>
+    <string name="type_field_title">Тип</string>
+    <string name="good_habit_button_title">Полезная привычка</string>
+    <string name="bad_habit_button_title">Вредная привычка</string>
+    <string name="periodicity_field_title">Периодичность</string>
+    <string name="periodicity_field_title_first_part">раз в</string>
+    <string name="periodicity_field_title_second_part">дней</string>
+    <string name="color_field_title">Цвет</string>
+    <string-array name="habit_priority">
+        <item>Высокий</item>
+        <item>Средний</item>
+        <item>Низкий</item>
+    </string-array>
+</resources>
