@@ -1,6 +1,7 @@
 package com.example.habittracker
 
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -35,40 +36,37 @@ class HabitCreatingOrEditingActivity : AppCompatActivity() {
     }
 
     private fun setValuesToFields() {
-        binding.pageTitle.text = "Редактирование привычки"
-        binding.nameFieldEditing.setText(intent.getStringExtra("name"))
-        binding.descriptionFieldEditing.setText(intent.getStringExtra("description"))
-        binding.priorityFieldEditing.setSelection(
-            when (intent.getSerializableExtra("priority") as HabitPriority) {
-                HabitPriority.HIGH -> 0
-                HabitPriority.MEDIUM -> 1
-                HabitPriority.LOW -> 2
-            }
-        )
-        binding.typeFieldEditing.check(
-            when (intent.getSerializableExtra("type") as HabitType) {
-                HabitType.GOOD -> binding.goodHabitButton.id
-                HabitType.BAD -> binding.badHabitButton.id
-            }
-        )
-        val periodicity = intent.getSerializableExtra("periodicity") as Pair<Int, Int>
-        binding.timesFieldEditing.setText(periodicity.first.toString())
-        binding.daysFieldEditing.setText(periodicity.second.toString())
-        binding.currentColorIcon.setImageDrawable(ColorDrawable(intent.getIntExtra("color", 0)))
+        val habit = intent.getParcelableExtra<Habit>("habit")
+        habit?.let {
+            binding.pageTitle.text = "Редактирование привычки"
+            binding.nameFieldEditing.setText(it.name)
+            binding.descriptionFieldEditing.setText(it.description)
+            binding.priorityFieldEditing.setSelection(
+                when (it.priority) {
+                    HabitPriority.HIGH -> 0
+                    HabitPriority.MEDIUM -> 1
+                    HabitPriority.LOW -> 2
+                }
+            )
+            binding.typeFieldEditing.check(
+                when (it.type) {
+                    HabitType.GOOD -> binding.goodHabitButton.id
+                    HabitType.BAD -> binding.badHabitButton.id
+                }
+            )
+            binding.timesFieldEditing.setText(it.periodicityTimesPerDay.first.toString())
+            binding.daysFieldEditing.setText(it.periodicityTimesPerDay.second.toString())
+            binding.currentColorIcon.setImageDrawable(ColorDrawable(it.color))
+        }
     }
 
     fun saveChanges(view: View) {
         if (binding.nameFieldEditing.text.isEmpty() || binding.descriptionField.text.isEmpty() || binding.timesFieldEditing.text.isEmpty() || binding.daysFieldEditing.text.isEmpty()) {
             setResult(Activity.RESULT_CANCELED)
         } else {
-            val priorityToString: Map<String, HabitPriority> = mapOf(
-                "Высокий" to HabitPriority.HIGH,
-                "Средний" to HabitPriority.MEDIUM,
-                "Низкий" to HabitPriority.LOW
-            )
             val name = binding.nameFieldEditing.text.toString()
             val description = binding.descriptionFieldEditing.text.toString()
-            val priority = priorityToString[binding.priorityFieldEditing.selectedItem.toString()]
+            val priority = HabitPriority.parse(binding.priorityFieldEditing.selectedItem.toString())
             val type = when (binding.goodHabitButton.isChecked) {
                 true -> HabitType.GOOD
                 false -> HabitType.BAD
@@ -76,16 +74,19 @@ class HabitCreatingOrEditingActivity : AppCompatActivity() {
             val periodicityTimes = binding.timesFieldEditing.text.toString().toInt()
             val periodicityDays = binding.daysFieldEditing.text.toString().toInt()
             val color = (binding.currentColorIcon.drawable as ColorDrawable).color
-            Intent().let {
-                it.putExtra("id", intent.getIntExtra("id", 0))
-                it.putExtra("name", name)
-                it.putExtra("description", description)
-                it.putExtra("priority", priority)
-                it.putExtra("type", type)
-                it.putExtra("periodicity", periodicityTimes to periodicityDays)
-                it.putExtra("color", color)
-                setResult(Activity.RESULT_OK, it)
-            }
+            val intent = Intent().putExtra(
+                "habit",
+                Habit(
+                    intent.getIntExtra("id", 0),
+                    name,
+                    description,
+                    priority,
+                    type,
+                    periodicityTimes to periodicityDays,
+                    color
+                )
+            )
+            setResult(Activity.RESULT_OK, intent)
         }
         finish()
     }
@@ -117,10 +118,18 @@ class HabitCreatingOrEditingActivity : AppCompatActivity() {
             )
             val displayMetrics = resources.displayMetrics
             buttonParams.height =
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, colorButtonWidth.toFloat(), displayMetrics)
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    colorButtonWidth.toFloat(),
+                    displayMetrics
+                )
                     .toInt()
             buttonParams.width =
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, colorButtonWidth.toFloat(), displayMetrics)
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    colorButtonWidth.toFloat(),
+                    displayMetrics
+                )
                     .toInt()
             buttonParams.rightMargin = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
@@ -134,14 +143,12 @@ class HabitCreatingOrEditingActivity : AppCompatActivity() {
                 displayMetrics
             )
                 .toInt()
-
             button.layoutParams = buttonParams
-
-            val x = 2 *colorButtonWidth * i + colorButtonWidth / 2
+            val x = 2 * colorButtonWidth * i + colorButtonWidth / 2
             val y = 0
             val color = ColorDrawable(b.getPixel(x, y))
             button.background = color
-            button.setOnClickListener { _ ->  binding.currentColorIcon.setImageDrawable(color) }
+            button.setOnClickListener { _ -> binding.currentColorIcon.setImageDrawable(color) }
             binding.colorsScroll.addView(button)
         }
     }

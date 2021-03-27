@@ -40,8 +40,21 @@ class HabitsAdapter(
                     habitTypeImage
                 ))
             )
-            binding.habitPeriodicity.text =
-                "Выполнять ${habit.periodicityTimesPerDay.first} раз в ${habit.periodicityTimesPerDay.second} дней"
+            val periodicityTimes = binding.root.resources.getQuantityString(
+                R.plurals.periodicity_times,
+                habit.periodicityTimesPerDay.first,
+                habit.periodicityTimesPerDay.first
+            )
+            val periodicityDays = binding.root.resources.getQuantityString(
+                R.plurals.periodicity_days,
+                habit.periodicityTimesPerDay.second,
+                habit.periodicityTimesPerDay.second
+            )
+            binding.habitPeriodicity.text = binding.root.resources.getString(
+                R.string.periodicity,
+                periodicityTimes,
+                periodicityDays
+            )
             binding.root.background = ColorDrawable(habit.color)
         }
     }

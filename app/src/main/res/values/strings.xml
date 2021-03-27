@@ -15,4 +15,15 @@
         <item>Средний</item>
         <item>Низкий</item>
     </string-array>
+    <plurals name="periodicity_times">
+        <item quantity="one">%d раз</item>
+        <item quantity="few">%d раза</item>
+        <item quantity="other">%d раз</item>
+    </plurals>
+    <plurals name="periodicity_days">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="other">%d дней</item>
+    </plurals>
+    <string name="periodicity">Выполнять %1$s в %2$s</string>
 </resources>

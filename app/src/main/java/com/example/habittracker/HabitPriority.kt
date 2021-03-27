@@ -1,5 +1,15 @@
 package com.example.habittracker
 
 enum class HabitPriority {
-    HIGH, MEDIUM, LOW
+    HIGH, MEDIUM, LOW;
+
+    companion object Parser {
+        fun parse(s: String) =
+            when (s) {
+                "Высокий" -> HIGH
+                "Средний" -> MEDIUM
+                "Низкий" -> LOW
+                else -> throw Exception()
+            }
+    }
 }

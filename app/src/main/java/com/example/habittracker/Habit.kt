@@ -1,6 +1,10 @@
 package com.example.habittracker
 
-class Habit(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Habit(
     val id: Int,
     val name: String,
     val description: String,
@@ -8,6 +12,4 @@ class Habit(
     val type: HabitType,
     val periodicityTimesPerDay: Pair<Int, Int>,
     val color: Int
-) {
-
-}
+) : Parcelable
