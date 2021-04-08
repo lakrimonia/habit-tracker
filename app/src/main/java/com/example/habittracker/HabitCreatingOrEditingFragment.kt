@@ -18,6 +18,26 @@ import androidx.core.graphics.drawable.toDrawable
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 
 class HabitCreatingOrEditingFragment : Fragment() {
+    companion object {
+        private const val HABIT_ID = "habit id"
+        private const val HABIT_TO_EDIT = "habit to edit"
+
+        @JvmStatic
+        fun newInstance(habitId: Int) = HabitCreatingOrEditingFragment().apply {
+            arguments = Bundle().apply {
+                putInt(HABIT_ID, habitId)
+            }
+        }
+
+        @JvmStatic
+        fun newInstance(habitToEdit: Habit, habitId: Int) = HabitCreatingOrEditingFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable(HABIT_TO_EDIT, habitToEdit)
+                putInt(HABIT_ID, habitId)
+            }
+        }
+    }
+
     private var _binding: FragmentHabitCreatingOrEditingBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
@@ -38,7 +58,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         createColorTable()
-        binding.pageTitle.text = "Создание привычки"
+        binding.pageTitle.text = resources.getString(R.string.habit_creating_title)
         arguments?.getParcelable<Habit>(HABIT_TO_EDIT)?.let {
             setValuesToFields(it)
         }
@@ -57,7 +77,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
     }
 
     private fun setValuesToFields(habit: Habit) {
-        binding.pageTitle.text = "Редактирование привычки"
+        binding.pageTitle.text = resources.getString(R.string.habit_editing_title)
         binding.nameFieldEditing.setText(habit.name)
         binding.descriptionFieldEditing.setText(habit.description)
         binding.priorityFieldEditing.setSelection(
@@ -161,26 +181,6 @@ class HabitCreatingOrEditingFragment : Fragment() {
             button.background = color
             button.setOnClickListener { _ -> binding.currentColorIcon.setImageDrawable(color) }
             binding.colorsScroll.addView(button)
-        }
-    }
-
-    companion object {
-        const val HABIT_ID = "habit id"
-        const val HABIT_TO_EDIT = "habit to edit"
-
-        @JvmStatic
-        fun newInstance(habitId: Int) = HabitCreatingOrEditingFragment().apply {
-            arguments = Bundle().apply {
-                putInt(HABIT_ID, habitId)
-            }
-        }
-
-        @JvmStatic
-        fun newInstance(habitToEdit: Habit, habitId: Int) = HabitCreatingOrEditingFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(HABIT_TO_EDIT, habitToEdit)
-                putInt(HABIT_ID, habitId)
-            }
         }
     }
 }
