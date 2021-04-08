@@ -26,4 +26,6 @@
         <item quantity="other">%d дней</item>
     </plurals>
     <string name="periodicity">Выполнять %1$s в %2$s</string>
+
+    <string name="about_app">В этом приложении можно создавать и редактировать привычки.</string>
 </resources>

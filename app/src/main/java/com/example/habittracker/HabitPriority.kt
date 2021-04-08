@@ -3,7 +3,7 @@ package com.example.habittracker
 enum class HabitPriority {
     HIGH, MEDIUM, LOW;
 
-    companion object Parser {
+    companion object {
         fun parse(s: String) =
             when (s) {
                 "Высокий" -> HIGH
