@@ -11,6 +11,11 @@ class HabitCreatingOrEditingViewModel : ViewModel() {
     var habitToEdit: LiveData<Habit> = _habitToEdit
     private var habitId: Int = 0
 
+    fun createHabit() {
+        _habitToEdit.value = null
+
+    }
+
     fun editHabit(habit: Habit) {
         _habitToEdit.value = habit
     }
@@ -54,7 +59,6 @@ class HabitCreatingOrEditingViewModel : ViewModel() {
             HabitPriority.LOW -> habits.add(habit)
         }
         _saveChanges.value = Event(habit)
-        _habitToEdit.value = null
     }
 }
 

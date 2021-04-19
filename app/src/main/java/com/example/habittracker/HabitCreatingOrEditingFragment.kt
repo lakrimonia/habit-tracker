@@ -45,6 +45,11 @@ class HabitCreatingOrEditingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHabitCreatingOrEditingBinding.inflate(inflater, container, false)
+        arguments?.getParcelable<Habit>(HABIT_TO_EDIT).let {
+            if (it != null)
+                viewModel.editHabit(it)
+            else viewModel.createHabit()
+        }
         return binding.root
     }
 
@@ -52,10 +57,6 @@ class HabitCreatingOrEditingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         createColorTable()
         binding.pageTitle.text = resources.getString(R.string.habit_creating_title)
-
-        arguments?.getParcelable<Habit>(HABIT_TO_EDIT)?.let {
-            viewModel.editHabit(it)
-        }
 
         viewModel.habitToEdit.observe(viewLifecycleOwner, {
             setValuesToFields(it)
