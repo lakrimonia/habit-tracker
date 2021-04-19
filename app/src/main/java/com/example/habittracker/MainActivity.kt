@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.commit
 import com.example.habittracker.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 
@@ -16,86 +17,42 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        val noUIFragment = NoUIFragment()
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().add(noUIFragment, NoUIFragment.TAG).commit()
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, MainPageFragment.newInstance(noUIFragment.habitsList)).commit()
-        }
+        if (savedInstanceState == null)
+            supportFragmentManager.commit {
+                add(R.id.fragment_container, MainPageFragment())
+            }
         binding.navView.setNavigationItemSelectedListener(this)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun addHabit() {
-        val noUIFragment =
-            supportFragmentManager.findFragmentByTag(NoUIFragment.TAG) as NoUIFragment
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragment_container,
-                HabitCreatingOrEditingFragment.newInstance(noUIFragment.habitId)
-            )
-            .commit()
+        supportFragmentManager.commit {
+            replace(R.id.fragment_container, HabitCreatingOrEditingFragment())
+            addToBackStack(null)
+        }
     }
 
     override fun editHabit(habit: Habit) {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragment_container,
-                HabitCreatingOrEditingFragment.newInstance(habit, habit.id)
-            )
-            .commit()
-    }
-
-    override fun addFinalHabit(habit: Habit) {
-        val noUIFragment =
-            supportFragmentManager.findFragmentByTag(NoUIFragment.TAG) as NoUIFragment
-        if (habit.id != noUIFragment.habitId) {
-            var deletedHabitIndex = 0
-            for (i in 0 until noUIFragment.habitsList.size) {
-                if (noUIFragment.habitsList[i].id == habit.id) {
-                    deletedHabitIndex = i
-                    break
-                }
-            }
-            noUIFragment.habitsList.removeAt(deletedHabitIndex)
-        } else noUIFragment.habitId++
-        when (habit.priority) {
-            HabitPriority.HIGH -> noUIFragment.habitsList.add(0, habit)
-            HabitPriority.MEDIUM -> noUIFragment.habitsList.add(noUIFragment.habitsList.size / 2, habit)
-            HabitPriority.LOW -> noUIFragment.habitsList.add(habit)
+        supportFragmentManager.commit {
+            replace(R.id.fragment_container, HabitCreatingOrEditingFragment.newInstance(habit))
+            addToBackStack(null)
         }
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, MainPageFragment.newInstance(noUIFragment.habitsList))
-            .commit()
     }
 
     override fun returnToMainPage() {
-        val noUIFragment =
-            supportFragmentManager.findFragmentByTag(NoUIFragment.TAG) as NoUIFragment
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, MainPageFragment.newInstance(noUIFragment.habitsList))
-            .commit()
+        supportFragmentManager.popBackStack()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.main_page) {
-            val habitsList =
-                (supportFragmentManager.findFragmentByTag(NoUIFragment.TAG) as NoUIFragment).habitsList
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, MainPageFragment.newInstance(habitsList))
-                .commit()
-        }
+        if (item.itemId == R.id.main_page)
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, MainPageFragment())
+            }
         if (item.itemId == R.id.about_app)
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, AboutAppFragment())
-                .commit()
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, AboutAppFragment())
+            }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }

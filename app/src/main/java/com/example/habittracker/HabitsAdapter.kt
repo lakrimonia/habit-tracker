@@ -12,9 +12,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.habittracker.databinding.HabitItemBinding
 
 class HabitsAdapter(
-    private val habits: List<Habit>,
+    private val allHabits: List<Habit>,
+    private val habitType: HabitType,
     private val onClick: (Habit) -> Unit
 ) : RecyclerView.Adapter<HabitsAdapter.HabitsViewHolder>() {
+    private val habits: List<Habit>
+        get() = allHabits.filter { habit -> habit.type == habitType }
 
     class HabitsViewHolder(
         private val binding: HabitItemBinding,
@@ -71,6 +74,7 @@ class HabitsAdapter(
     }
 
     override fun onBindViewHolder(holder: HabitsViewHolder, position: Int) {
+//        habits = allHabits.filter { habit -> habit.type == habitType }
         holder.bind(habits[position])
     }
 

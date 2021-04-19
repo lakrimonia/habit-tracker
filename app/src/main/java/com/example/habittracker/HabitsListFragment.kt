@@ -6,27 +6,28 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.example.habittracker.databinding.FragmentHabitsListBinding
 
 
 class HabitsListFragment : Fragment() {
     companion object {
-        private const val HABITS_LIST = "habits list"
+        const val HABIT_TYPE = "habit type"
 
         @JvmStatic
-        fun newInstance(habits: ArrayList<Habit>) =
-            HabitsListFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(HABITS_LIST, habits)
-                }
+        fun newInstance(habitType: HabitType) = HabitsListFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable(HABIT_TYPE, habitType)
             }
+        }
     }
 
     private var _binding: FragmentHabitsListBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
-
-    private lateinit var habits: ArrayList<Habit>
+    private val viewModel: HabitsListViewModel by activityViewModels()
+    private lateinit var habitType: HabitType
 
 
     override fun onAttach(context: Context) {
@@ -36,8 +37,8 @@ class HabitsListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.getSerializable(HABITS_LIST)?.let {
-            habits = it as ArrayList<Habit>
+        arguments?.getSerializable(HABIT_TYPE)?.let {
+            habitType = it as HabitType
         }
     }
 
@@ -45,14 +46,25 @@ class HabitsListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentHabitsListBinding.inflate(inflater, container, false)
-        val view = binding.root
-        binding.recyclerView.adapter = HabitsAdapter(habits) { habitItemOnClick(it) }
-        return view
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.habits.observe(viewLifecycleOwner, { habits ->
+            binding.recyclerView.adapter =
+                HabitsAdapter(habits, habitType) { habitItemOnClick(it) }
+        })
+
+        viewModel.startToEditHabit.observe(viewLifecycleOwner, {
+            it.getContentIfNotHandled()?.let { habit ->
+                callback?.editHabit(habit)
+            }
+        })
     }
 
     private fun habitItemOnClick(habit: Habit) {
-        callback?.editHabit(habit)
+        viewModel.clickOnHabitItem(habit)
     }
 }

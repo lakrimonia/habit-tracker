@@ -15,25 +15,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.core.graphics.drawable.toDrawable
+import androidx.fragment.app.activityViewModels
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 
 class HabitCreatingOrEditingFragment : Fragment() {
     companion object {
-        private const val HABIT_ID = "habit id"
         private const val HABIT_TO_EDIT = "habit to edit"
 
         @JvmStatic
-        fun newInstance(habitId: Int) = HabitCreatingOrEditingFragment().apply {
-            arguments = Bundle().apply {
-                putInt(HABIT_ID, habitId)
-            }
-        }
-
-        @JvmStatic
-        fun newInstance(habitToEdit: Habit, habitId: Int) = HabitCreatingOrEditingFragment().apply {
+        fun newInstance(habitToEdit: Habit) = HabitCreatingOrEditingFragment().apply {
             arguments = Bundle().apply {
                 putParcelable(HABIT_TO_EDIT, habitToEdit)
-                putInt(HABIT_ID, habitId)
             }
         }
     }
@@ -41,6 +33,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
     private var _binding: FragmentHabitCreatingOrEditingBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
+    private val viewModel: HabitCreatingOrEditingViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -59,47 +52,51 @@ class HabitCreatingOrEditingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         createColorTable()
         binding.pageTitle.text = resources.getString(R.string.habit_creating_title)
+
         arguments?.getParcelable<Habit>(HABIT_TO_EDIT)?.let {
-            setValuesToFields(it)
+            viewModel.editHabit(it)
         }
+
+        viewModel.habitToEdit.observe(viewLifecycleOwner, {
+            setValuesToFields(it)
+        })
 
         binding.floatingActionButton.setOnClickListener {
-            if (binding.nameFieldEditing.text.isEmpty()
-                || binding.descriptionField.text.isEmpty()
-                || binding.timesFieldEditing.text.isEmpty()
-                || binding.daysFieldEditing.text.isEmpty()
-            ) {
-                callback?.returnToMainPage()
-                return@setOnClickListener
-            }
             saveChanges()
         }
+
+        viewModel.saveChanges.observe(viewLifecycleOwner, {
+            it.getContentIfNotHandled()?.let {
+                callback?.returnToMainPage()
+            }
+        })
     }
 
-    private fun setValuesToFields(habit: Habit) {
+    private fun setValuesToFields(habit: Habit?) {
         binding.pageTitle.text = resources.getString(R.string.habit_editing_title)
-        binding.nameFieldEditing.setText(habit.name)
-        binding.descriptionFieldEditing.setText(habit.description)
+        binding.nameFieldEditing.setText(habit?.name ?: "")
+        binding.descriptionFieldEditing.setText(habit?.description ?: "")
         binding.priorityFieldEditing.setSelection(
-            when (habit.priority) {
+            when (habit?.priority) {
                 HabitPriority.HIGH -> 0
                 HabitPriority.MEDIUM -> 1
                 HabitPriority.LOW -> 2
+                null -> 0
             }
         )
         binding.typeFieldEditing.check(
-            when (habit.type) {
+            when (habit?.type) {
                 HabitType.GOOD -> binding.goodHabitButton.id
                 HabitType.BAD -> binding.badHabitButton.id
+                null -> binding.goodHabitButton.id
             }
         )
-        binding.timesFieldEditing.setText(habit.periodicityTimesPerDay.first.toString())
-        binding.daysFieldEditing.setText(habit.periodicityTimesPerDay.second.toString())
-        binding.currentColorIcon.setImageDrawable(ColorDrawable(habit.color))
+        binding.timesFieldEditing.setText((habit?.periodicityTimesPerDay?.first ?: "").toString())
+        binding.daysFieldEditing.setText((habit?.periodicityTimesPerDay?.second ?: "").toString())
+        binding.currentColorIcon.setImageDrawable(ColorDrawable(habit?.color ?: Color.RED))
     }
 
     private fun saveChanges() {
-        val id = arguments?.getInt(HABIT_ID)
         val name = binding.nameFieldEditing.text.toString()
         val description = binding.descriptionFieldEditing.text.toString()
         val priority = HabitPriority.parse(binding.priorityFieldEditing.selectedItem.toString())
@@ -110,8 +107,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
         val periodicityTimes = binding.timesFieldEditing.text.toString().toInt()
         val periodicityDays = binding.daysFieldEditing.text.toString().toInt()
         val color = (binding.currentColorIcon.drawable as ColorDrawable).color
-        val habit = Habit(
-            id!!,
+        viewModel.clickOnFab(
             name,
             description,
             priority,
@@ -119,7 +115,6 @@ class HabitCreatingOrEditingFragment : Fragment() {
             periodicityTimes to periodicityDays,
             color
         )
-        callback?.addFinalHabit(habit)
     }
 
     private fun createColorTable() {
