@@ -7,14 +7,18 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.AdapterView
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 
@@ -50,72 +54,145 @@ class HabitCreatingOrEditingFragment : Fragment() {
                 viewModel.editHabit(it)
             else viewModel.createHabit()
         }
+        createColorTable()
+        binding.floatingActionButton.setOnClickListener {
+            viewModel.clickOnFab()
+        }
+        viewModel.setValues()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        createColorTable()
         binding.pageTitle.text = resources.getString(R.string.habit_creating_title)
+        binding.nameFieldEditing.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-        viewModel.habitToEdit.observe(viewLifecycleOwner, {
-            setValuesToFields(it)
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setName(s.toString())
+            }
+        })
+        binding.descriptionFieldEditing.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setDescription(s.toString())
+            }
+        })
+        binding.priorityFieldEditing.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    viewModel.setPriority(
+                        when (position) {
+                            0 -> HabitPriority.HIGH
+                            1 -> HabitPriority.MEDIUM
+                            2 -> HabitPriority.LOW
+                            else -> HabitPriority.LOW
+                        }
+                    )
+                }
+            }
+
+        binding.typeFieldEditing.setOnCheckedChangeListener { group, checkedId ->
+            viewModel.setType(
+                when (checkedId) {
+                    binding.goodHabitButton.id -> HabitType.GOOD
+                    binding.badHabitButton.id -> HabitType.BAD
+                    else -> HabitType.BAD
+                }
+            )
+        }
+
+        binding.timesFieldEditing.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val times = s.toString()
+                if (times != "")
+                    viewModel.setPeriodicityTimes(times.toInt())
+                else viewModel.setPeriodicityTimes(null)
+            }
         })
 
-        binding.floatingActionButton.setOnClickListener {
-            saveChanges()
-        }
+        binding.daysFieldEditing.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val days = s.toString()
+                if (days != "")
+                    viewModel.setPeriodicityDays(days.toInt())
+                else viewModel.setPeriodicityDays(null)
+            }
+        })
 
         viewModel.saveChanges.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let {
                 callback?.returnToMainPage()
             }
         })
-    }
 
-    private fun setValuesToFields(habit: Habit?) {
-        binding.pageTitle.text = resources.getString(R.string.habit_editing_title)
-        binding.nameFieldEditing.setText(habit?.name ?: "")
-        binding.descriptionFieldEditing.setText(habit?.description ?: "")
-        binding.priorityFieldEditing.setSelection(
-            when (habit?.priority) {
-                HabitPriority.HIGH -> 0
-                HabitPriority.MEDIUM -> 1
-                HabitPriority.LOW -> 2
-                null -> 0
-            }
-        )
-        binding.typeFieldEditing.check(
-            when (habit?.type) {
-                HabitType.GOOD -> binding.goodHabitButton.id
-                HabitType.BAD -> binding.badHabitButton.id
-                null -> binding.goodHabitButton.id
-            }
-        )
-        binding.timesFieldEditing.setText((habit?.periodicityTimesPerDay?.first ?: "").toString())
-        binding.daysFieldEditing.setText((habit?.periodicityTimesPerDay?.second ?: "").toString())
-        binding.currentColorIcon.setImageDrawable(ColorDrawable(habit?.color ?: Color.RED))
-    }
+        viewModel.name.observe(viewLifecycleOwner, {
+            binding.nameFieldEditing.setText(it ?: "")
+        })
 
-    private fun saveChanges() {
-        val name = binding.nameFieldEditing.text.toString()
-        val description = binding.descriptionFieldEditing.text.toString()
-        val priority = HabitPriority.parse(binding.priorityFieldEditing.selectedItem.toString())
-        val type = when (binding.goodHabitButton.isChecked) {
-            true -> HabitType.GOOD
-            false -> HabitType.BAD
-        }
-        val periodicityTimes = binding.timesFieldEditing.text.toString().toInt()
-        val periodicityDays = binding.daysFieldEditing.text.toString().toInt()
-        val color = (binding.currentColorIcon.drawable as ColorDrawable).color
-        viewModel.clickOnFab(
-            name,
-            description,
-            priority,
-            type,
-            periodicityTimes to periodicityDays,
-            color
-        )
+        viewModel.description.observe(viewLifecycleOwner, {
+            binding.descriptionFieldEditing.setText(it ?: "")
+        })
+
+        viewModel.priority.observe(viewLifecycleOwner, {
+            binding.priorityFieldEditing.setSelection(
+                when (it) {
+                    HabitPriority.HIGH -> 0
+                    HabitPriority.MEDIUM -> 1
+                    HabitPriority.LOW -> 2
+                    null -> 0
+                }
+            )
+        })
+
+        viewModel.type.observe(viewLifecycleOwner, {
+            binding.typeFieldEditing.check(
+                when (it) {
+                    HabitType.GOOD -> binding.goodHabitButton.id
+                    HabitType.BAD -> binding.badHabitButton.id
+                    null -> binding.goodHabitButton.id
+                }
+            )
+        })
+
+        viewModel.periodicityTimes.observe(viewLifecycleOwner, {
+            it?.let {
+                binding.timesFieldEditing.setText(it.toString())
+            }
+        })
+
+        viewModel.periodicityDays.observe(viewLifecycleOwner, {
+            binding.daysFieldEditing.setText(it?.toString() ?: "")
+
+        })
+
+        viewModel.color.observe(viewLifecycleOwner, {
+            if (it != null)
+                binding.currentColorIcon.setImageDrawable(ColorDrawable(it))
+            else {
+                val firstColorIcon = binding.colorsScroll.getChildAt(0) as ImageButton
+                binding.currentColorIcon.setImageDrawable(firstColorIcon.background)
+                viewModel.setColor((binding.currentColorIcon.drawable as ColorDrawable).color)
+            }
+        })
     }
 
     private fun createColorTable() {
@@ -137,8 +214,9 @@ class HabitCreatingOrEditingFragment : Fragment() {
         gradient.setBounds(0, 0, width, height)
         gradient.draw(c)
         binding.colorsScroll.background = b.toDrawable(resources)
+
         for (i in 0 until 16) {
-            val button = Button(context)
+            val button = ImageButton(context)
             val buttonParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -175,7 +253,11 @@ class HabitCreatingOrEditingFragment : Fragment() {
             val y = 0
             val color = ColorDrawable(b.getPixel(x, y))
             button.background = color
-            button.setOnClickListener { _ -> binding.currentColorIcon.setImageDrawable(color) }
+            button.setOnClickListener { _ ->
+                binding.currentColorIcon.setImageDrawable(color)
+                viewModel.setColor(b.getPixel(x, y))
+            }
+            ViewCompat.setElevation(button, 5f)
             binding.colorsScroll.addView(button)
         }
     }

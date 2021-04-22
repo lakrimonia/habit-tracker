@@ -1,18 +1,29 @@
 package com.example.habittracker
 
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import com.example.habittracker.databinding.ActivityMainBinding
+import com.example.habittracker.databinding.FragmentHabitsFilterAndSortingBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
+import java.util.*
 
 class MainActivity : AppCompatActivity(), MainActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var drawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
@@ -20,10 +31,47 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         if (savedInstanceState == null)
             supportFragmentManager.commit {
                 add(R.id.fragment_container, MainPageFragment())
-            }
-        binding.navView.setNavigationItemSelectedListener(this)
+        }
         setSupportActionBar(binding.toolbar)
+        drawerToggle = ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            R.string.open_drawer,
+            R.string.close_drawer
+        )
+        drawerToggle.isDrawerIndicatorEnabled = true
+        binding.drawerLayout.addDrawerListener(drawerToggle)
+        supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.navView.setNavigationItemSelectedListener(this)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(drawerToggle.onOptionsItemSelected(item))
+            return true
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        drawerToggle.syncState()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        drawerToggle.onConfigurationChanged(newConfig)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
+    override fun onBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        if (supportFragmentManager.backStackEntryCount > 0)
+            returnToMainPage()
     }
 
     override fun addHabit() {
@@ -31,6 +79,8 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
             replace(R.id.fragment_container, HabitCreatingOrEditingFragment())
             addToBackStack(null)
         }
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerToggle.isDrawerIndicatorEnabled = false
     }
 
     override fun editHabit(habit: Habit) {
@@ -38,10 +88,14 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
             replace(R.id.fragment_container, HabitCreatingOrEditingFragment.newInstance(habit))
             addToBackStack(null)
         }
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerToggle.isDrawerIndicatorEnabled = false
     }
 
     override fun returnToMainPage() {
         supportFragmentManager.popBackStack()
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        drawerToggle.isDrawerIndicatorEnabled = true
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

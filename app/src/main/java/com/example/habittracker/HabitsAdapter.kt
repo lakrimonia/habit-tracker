@@ -10,6 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.habittracker.databinding.HabitItemBinding
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class HabitsAdapter(
     private val allHabits: List<Habit>,
@@ -63,6 +68,10 @@ class HabitsAdapter(
                 periodicityDays
             )
             binding.root.background = ColorDrawable(habit.color)
+            binding.habitCreatingDate.text = SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.getDefault()
+            ).format(habit.creatingDate.time)
         }
     }
 
@@ -74,7 +83,6 @@ class HabitsAdapter(
     }
 
     override fun onBindViewHolder(holder: HabitsViewHolder, position: Int) {
-//        habits = allHabits.filter { habit -> habit.type == habitType }
         holder.bind(habits[position])
     }
 

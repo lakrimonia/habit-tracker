@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.habittracker.databinding.FragmentMainPageBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainPageFragment : Fragment() {
@@ -39,6 +40,7 @@ class MainPageFragment : Fragment() {
             viewModel.clickOnFab()
         }
         viewModel.updateHabitsList()
+
         return binding.root
     }
 

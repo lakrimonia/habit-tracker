@@ -1,14 +1,14 @@
 package com.example.habittracker
 
 enum class HabitPriority {
-    HIGH, MEDIUM, LOW;
+    LOW, MEDIUM, HIGH;
 
     companion object {
         fun parse(s: String) =
             when (s) {
-                "Высокий" -> HIGH
-                "Средний" -> MEDIUM
                 "Низкий" -> LOW
+                "Средний" -> MEDIUM
+                "Высокий" -> HIGH
                 else -> throw Exception()
             }
     }

@@ -34,4 +34,9 @@
     <string name="about_app_menu_item">О приложении</string>
     <string name="good_habits_tab_title">Полезные</string>
     <string name="bad_habits_tab_title">Вредные</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="open_drawer">Open drawer</string>
+    <string name="close_drawer">Close drawer</string>
+    <string name="reset_all_filters">Сбросить все фильтры</string>
 </resources>
