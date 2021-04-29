@@ -45,6 +45,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
         viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                 val dao = HabitDatabase.getDatabase(requireContext()).habitDao()
+                @Suppress("UNCHECKED_CAST")
                 return HabitCreatingOrEditingViewModel(HabitRepository(dao)) as T
             }
         }).get(HabitCreatingOrEditingViewModel::class.java)

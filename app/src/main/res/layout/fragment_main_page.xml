@@ -37,7 +37,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/bottom_sheet"
-        android:name="com.example.habittracker.HabitsFilterAndSortingFragment"
+        android:name="com.example.habittracker.mainpage.HabitsFilterAndSortingFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:behavior_peekHeight="70dp"

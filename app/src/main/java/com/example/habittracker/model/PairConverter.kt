@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 
 class PairConverter {
     @TypeConverter
-    fun fromPair(pair: Pair<Int, Int>) = "${pair.first},${pair.second}"
+    fun fromPair(pair: Pair<Int, Int>): String = "${pair.first},${pair.second}"
 
     @TypeConverter
     fun toPair(data: String): Pair<Int, Int> {

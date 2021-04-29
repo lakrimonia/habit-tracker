@@ -1,21 +1,13 @@
 package com.example.habittracker.mainpage
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.habittracker.Event
 import com.example.habittracker.model.Habit
 import com.example.habittracker.model.HabitRepository
-
-class HabitsListViewModelFactory(private val repository: HabitRepository) :
-    ViewModelProvider.Factory {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HabitsListViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return HabitsListViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
+import com.example.habittracker.model.HabitType
 
 class HabitsListViewModel(private val repository: HabitRepository) : ViewModel() {
     private val _startToCreateHabit by lazy {

@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 
 class HabitRepository(private val habitDao: HabitDao) {
     companion object {
-        private val _habitToEdit by lazy {
+        private val habitToEdit by lazy {
             MutableLiveData<Habit>()
         }
-        val HABIT_TO_EDIT: LiveData<Habit> = _habitToEdit
+        val HABIT_TO_EDIT: LiveData<Habit> = habitToEdit
 
         fun setHabitToEdit(habit: Habit) {
-            _habitToEdit.value = habit
+            habitToEdit.value = habit
         }
     }
 
@@ -21,7 +21,7 @@ class HabitRepository(private val habitDao: HabitDao) {
 
     fun insert(habit: Habit) {
         habitDao.insert(habit)
-        _habitToEdit.value = null
+        habitToEdit.value = null
     }
 
     fun clear() {

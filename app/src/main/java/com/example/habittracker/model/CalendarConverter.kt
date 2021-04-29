@@ -6,17 +6,16 @@ import java.util.*
 
 class CalendarConverter {
     @TypeConverter
-    fun fromCalendar(date: Calendar) = SimpleDateFormat(
+    fun fromCalendar(date: Calendar): String = SimpleDateFormat(
         "yyyy-MM-dd HH:mm:ss",
         Locale.getDefault()
     ).format(date.time)
 
     @TypeConverter
     fun toCalendar(data: String): Calendar {
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val d = sdf.parse(data)
-        val cal = Calendar.getInstance()
-        cal.time = d
-        return cal
+        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(data)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        return calendar
     }
 }
