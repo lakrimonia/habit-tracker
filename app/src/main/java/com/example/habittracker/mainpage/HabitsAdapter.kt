@@ -13,13 +13,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HabitsAdapter(
-    private val allHabits: List<Habit>,
-    private val habitType: HabitType,
+    private val habits: MutableList<Habit>,
     private val onClick: (Habit) -> Unit
 ) : RecyclerView.Adapter<HabitsAdapter.HabitsViewHolder>() {
-    private val habits: List<Habit>
-        get() = allHabits.filter { habit -> habit.type == habitType }
-
     class HabitsViewHolder(
         private val binding: HabitItemBinding,
         private val onClick: (Habit) -> Unit

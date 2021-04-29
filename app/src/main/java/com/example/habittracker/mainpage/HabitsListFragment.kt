@@ -64,13 +64,18 @@ class HabitsListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.habits.observe(viewLifecycleOwner, { habits ->
-//            if (binding.recyclerView.adapter==null)
-            binding.recyclerView.adapter =
-                HabitsAdapter(habits, habitType) { habitItemOnClick(it) }
-//            binding.recyclerView.adapter?.notifyDataSetChanged()
-
-        })
+        when (habitType) {
+            HabitType.GOOD -> viewModel.goodHabits.observe(viewLifecycleOwner, { habits ->
+                if (binding.recyclerView.adapter == null)
+                    binding.recyclerView.adapter = HabitsAdapter(habits) { habitItemOnClick(it) }
+                binding.recyclerView.adapter?.notifyDataSetChanged()
+            })
+            HabitType.BAD -> viewModel.badHabits.observe(viewLifecycleOwner, { habits ->
+                if (binding.recyclerView.adapter == null)
+                    binding.recyclerView.adapter = HabitsAdapter(habits) { habitItemOnClick(it) }
+                binding.recyclerView.adapter?.notifyDataSetChanged()
+            })
+        }
 
         viewModel.startToEditHabit.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let {

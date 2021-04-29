@@ -10,10 +10,6 @@ import com.example.habittracker.model.HabitRepository
 import com.example.habittracker.model.HabitType
 
 class HabitsListViewModel(private val repository: HabitRepository) : ViewModel() {
-    private val _startToCreateHabit by lazy {
-        MutableLiveData<Event<Int>>()
-    }
-    val startToCreateHabit: LiveData<Event<Int>> = _startToCreateHabit
     val mediatorLiveData: MediatorLiveData<List<Habit>> by lazy {
         MediatorLiveData()
     }
@@ -21,123 +17,151 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         MutableLiveData<Event<Int>>()
     }
     val resetFilters = _resetFilters
-    private val _habits by lazy {
-        MutableLiveData<List<Habit>>()
+
+    private val _goodHabits by lazy {
+        MutableLiveData<MutableList<Habit>>()
     }
+    val goodHabits: LiveData<MutableList<Habit>> = _goodHabits
+    private val _badHabits by lazy {
+        MutableLiveData<MutableList<Habit>>()
+    }
+    val badHabits: LiveData<MutableList<Habit>> = _badHabits
+
+    private val _startToCreateHabit by lazy {
+        MutableLiveData<Event<Int>>()
+    }
+    val startToCreateHabit: LiveData<Event<Int>> = _startToCreateHabit
     private val _startToEditHabit by lazy {
         MutableLiveData<Event<Habit>>()
     }
     val startToEditHabit: LiveData<Event<Habit>> = _startToEditHabit
 
-    val habits: LiveData<List<Habit>> = _habits
-
     private var sortedHabits: List<Habit>? = null
     private var filteredByNameHabits: List<Habit>? = null
     private var filteredByColorHabits: List<Habit>? = null
 
-    val colors: MutableList<Int> by lazy {
+    private val colors: MutableList<Int> by lazy {
         mutableListOf()
     }
 
     init {
+        _goodHabits.value = mutableListOf()
+        _badHabits.value = mutableListOf()
         mediatorLiveData.addSource(repository.allHabits) {
-            _habits.value = it
+            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD })
+            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD })
             colors.clear()
             sortedHabits = it
             filteredByNameHabits = it
             filteredByColorHabits = it
+            _resetFilters.value = Event(1)
         }
     }
 
     fun clickOnHabitItem(habit: Habit) {
         HabitRepository.setHabitToEdit(habit)
         _startToEditHabit.value = Event(habit)
-//        resetFilters()
     }
 
     fun clickOnFab() {
         _startToCreateHabit.value = Event(0)
-//        resetFilters()
+    }
+
+    private fun changeList(habits: MutableLiveData<MutableList<Habit>>, items: Collection<Habit>) {
+        habits.value?.clear()
+        habits.value?.addAll(items)
+        habits.value = habits.value
     }
 
     fun sortHabitsByPriorityAscending() {
-        _habits.value?.let { habitsList ->
-            sortedHabits = sortedHabits?.sortedBy { it.priority }
-            _habits.value = sortedHabits?.intersect(habitsList)?.toList()
-        }
+        sortedHabits = sortedHabits?.sortedBy { it.priority }
+        changeList(_goodHabits, sortedHabits!!.intersect(_goodHabits.value!!))
+        changeList(_badHabits, sortedHabits!!.intersect(_badHabits.value!!))
     }
 
     fun sortHabitsByPriorityDescending() {
-        _habits.value?.let { habitsList ->
-            sortedHabits = sortedHabits?.sortedByDescending { it.priority }
-            _habits.value = sortedHabits?.intersect(habitsList)?.toList()
-        }
+        sortedHabits = sortedHabits?.sortedByDescending { it.priority }
+        changeList(_goodHabits, sortedHabits!!.intersect(_goodHabits.value!!))
+        changeList(_badHabits, sortedHabits!!.intersect(_badHabits.value!!))
     }
 
     fun sortHabitsByNameAscending() {
-        _habits.value?.let { habitsList ->
-            sortedHabits = sortedHabits?.sortedBy { it.name }
-            _habits.value = sortedHabits?.intersect(habitsList)?.toList()
-        }
+        sortedHabits = sortedHabits?.sortedBy { it.name }
+        changeList(_goodHabits, sortedHabits!!.intersect(_goodHabits.value!!))
+        changeList(_badHabits, sortedHabits!!.intersect(_badHabits.value!!))
     }
 
     fun sortHabitsByNameDescending() {
-        _habits.value?.let { habitsList ->
-            sortedHabits = sortedHabits?.sortedByDescending { it.name }
-            _habits.value = sortedHabits?.intersect(habitsList)?.toList()
-        }
+        sortedHabits = sortedHabits?.sortedByDescending { it.name }
+        changeList(_goodHabits, sortedHabits!!.intersect(_goodHabits.value!!))
+        changeList(_badHabits, sortedHabits!!.intersect(_badHabits.value!!))
     }
 
     fun sortHabitsByCreatingDateAscending() {
-        _habits.value?.let { habitsList ->
-            sortedHabits = sortedHabits?.sortedBy { it.creatingDate }
-            _habits.value = sortedHabits?.intersect(habitsList)?.toList()
-        }
+        sortedHabits = sortedHabits?.sortedBy { it.creatingDate }
+        changeList(_goodHabits, sortedHabits!!.intersect(_goodHabits.value!!))
+        changeList(_badHabits, sortedHabits!!.intersect(_badHabits.value!!))
     }
 
     fun sortHabitsByCreatingDateDescending() {
-        _habits.value?.let { habitsList ->
-            sortedHabits = sortedHabits?.sortedByDescending { it.creatingDate }
-            _habits.value = sortedHabits?.intersect(habitsList)?.toList()
-        }
+        sortedHabits = sortedHabits?.sortedByDescending { it.creatingDate }
+        changeList(_goodHabits, sortedHabits!!.intersect(_goodHabits.value!!))
+        changeList(_badHabits, sortedHabits!!.intersect(_badHabits.value!!))
     }
 
     fun findByName(name: CharSequence) {
-        _habits.value?.let {
-            filteredByNameHabits =
-                repository.allHabits.value?.filter { it.name.startsWith(name, true) }
-            _habits.value =
-                sortedHabits?.intersect(filteredByColorHabits!!)?.intersect(filteredByNameHabits!!)
-                    ?.toList()
+        repository.allHabits.value?.let {
+            filteredByNameHabits = it.filter { h -> h.name.startsWith(name, true) }
+            changeList(
+                _goodHabits,
+                sortedHabits?.intersect(it.filter { h -> h.type == HabitType.GOOD })
+                    ?.intersect(filteredByColorHabits!!)?.intersect(filteredByNameHabits!!)!!
+            )
+            changeList(
+                _badHabits,
+                sortedHabits?.intersect(it.filter { h -> h.type == HabitType.BAD })
+                    ?.intersect(filteredByColorHabits!!)?.intersect(filteredByNameHabits!!)!!
+            )
         }
     }
 
     fun findByColor(color: Int) {
         colors.add(color)
-        _habits.value?.let {
-            repository.allHabits.value?.let { allHabits ->
-                filteredByColorHabits = allHabits.filter { colors.contains(it.color) }
-                _habits.value =
-                    sortedHabits!!.intersect(filteredByNameHabits!!)
-                        .intersect(filteredByColorHabits!!)
-                        .toList()
-            }
+        repository.allHabits.value?.let { allHabits ->
+            filteredByColorHabits = allHabits.filter { colors.contains(it.color) }
+            changeList(
+                _goodHabits,
+                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.GOOD })!!
+                    .intersect(filteredByNameHabits!!)
+                    .intersect(filteredByColorHabits!!)
+            )
+            changeList(
+                _badHabits,
+                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.BAD })!!
+                    .intersect(filteredByNameHabits!!)
+                    .intersect(filteredByColorHabits!!)
+            )
         }
     }
 
     fun removeColor(color: Int) {
         colors.remove(color)
-        _habits.value?.let { habitsList ->
-            repository.allHabits.value?.let { allHabits ->
-                if (colors.isEmpty()) {
-                    filteredByColorHabits = allHabits
-                    _habits.value = sortedHabits!!.intersect(filteredByNameHabits!!).toList()
-                } else {
-                    filteredByColorHabits = allHabits.filter { colors.contains(it.color) }
-                    _habits.value =
-                        habitsList.intersect(filteredByColorHabits!!).toList()
-                }
+        repository.allHabits.value?.let { allHabits ->
+            filteredByColorHabits = if (colors.isEmpty()) {
+                allHabits
+            } else {
+                allHabits.filter { colors.contains(it.color) }
             }
+            changeList(
+                _goodHabits,
+                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.GOOD })!!
+                    .intersect(filteredByNameHabits!!).intersect(filteredByColorHabits!!)
+            )
+            changeList(
+                _badHabits,
+                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.BAD })!!
+                    .intersect(filteredByNameHabits!!).intersect(filteredByColorHabits!!)
+            )
         }
     }
 
@@ -148,9 +172,12 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
 
     private fun resetFilters() {
         colors.clear()
-        sortedHabits = repository.allHabits.value
-        filteredByNameHabits = repository.allHabits.value
-        filteredByColorHabits = repository.allHabits.value
-        _habits.value = repository.allHabits.value
+        repository.allHabits.value?.let {
+            sortedHabits = it
+            filteredByNameHabits = it
+            filteredByColorHabits = it
+            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD })
+            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD })
+        }
     }
 }
