@@ -5,7 +5,8 @@ import androidx.room.*
 
 @Dao
 interface HabitDao {
-    @Query("SELECT * FROM habit_table ORDER BY priority ASC")
+//    @Query("SELECT * FROM habit_table ORDER BY priority DESC")
+    @Query("SELECT * FROM habit_table")
     fun getAll(): LiveData<List<Habit>>
 
     @Query("SELECT COUNT(*) FROM habit_table")

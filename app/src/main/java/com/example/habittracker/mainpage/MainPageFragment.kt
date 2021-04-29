@@ -64,4 +64,9 @@ class MainPageFragment : Fragment() {
             }
         })
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.mediatorLiveData.removeObservers(viewLifecycleOwner)
+    }
 }

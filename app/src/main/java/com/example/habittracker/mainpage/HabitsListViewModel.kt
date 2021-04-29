@@ -1,9 +1,6 @@
 package com.example.habittracker.mainpage
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.example.habittracker.Event
 import com.example.habittracker.model.Habit
 import com.example.habittracker.model.HabitRepository
@@ -17,7 +14,6 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         MutableLiveData<Event<Int>>()
     }
     val resetFilters = _resetFilters
-
     private val _goodHabits by lazy {
         MutableLiveData<MutableList<Habit>>()
     }
@@ -48,12 +44,12 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         _goodHabits.value = mutableListOf()
         _badHabits.value = mutableListOf()
         mediatorLiveData.addSource(repository.allHabits) {
-            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD })
-            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD })
+            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD }.sortedByDescending { h -> h.priority })
+            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD }.sortedByDescending { h -> h.priority })
             colors.clear()
-            sortedHabits = it
-            filteredByNameHabits = it
-            filteredByColorHabits = it
+            sortedHabits = it.sortedByDescending { h -> h.priority }
+            filteredByNameHabits = it.sortedByDescending { h -> h.priority }
+            filteredByColorHabits = it.sortedByDescending { h -> h.priority }
             _resetFilters.value = Event(1)
         }
     }
@@ -173,11 +169,11 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
     private fun resetFilters() {
         colors.clear()
         repository.allHabits.value?.let {
-            sortedHabits = it
-            filteredByNameHabits = it
-            filteredByColorHabits = it
-            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD })
-            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD })
+            sortedHabits = it.sortedByDescending { h -> h.priority }
+            filteredByNameHabits = it.sortedByDescending { h -> h.priority }
+            filteredByColorHabits = it.sortedByDescending { h -> h.priority }
+            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD }.sortedByDescending { h -> h.priority })
+            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD }.sortedByDescending { h -> h.priority })
         }
     }
 }
