@@ -1,21 +1,17 @@
 package com.example.habittracker
 
 import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import com.example.habittracker.databinding.ActivityMainBinding
-import com.example.habittracker.databinding.FragmentHabitsFilterAndSortingBinding
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.example.habittracker.habitcreatingoredititng.HabitCreatingOrEditingFragment
+import com.example.habittracker.mainpage.MainPageFragment
 import com.google.android.material.navigation.NavigationView
-import java.util.*
 
 class MainActivity : AppCompatActivity(), MainActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -31,7 +27,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         if (savedInstanceState == null)
             supportFragmentManager.commit {
                 add(R.id.fragment_container, MainPageFragment())
-        }
+            }
         setSupportActionBar(binding.toolbar)
         drawerToggle = ActionBarDrawerToggle(
             this,
@@ -47,7 +43,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(drawerToggle.onOptionsItemSelected(item))
+        if (drawerToggle.onOptionsItemSelected(item))
             return true
         return super.onOptionsItemSelected(item)
     }
@@ -72,6 +68,8 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         if (supportFragmentManager.backStackEntryCount > 0)
             returnToMainPage()
+        else
+            super.onBackPressed()
     }
 
     override fun addHabit() {
@@ -83,9 +81,9 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         drawerToggle.isDrawerIndicatorEnabled = false
     }
 
-    override fun editHabit(habit: Habit) {
+    override fun editHabit() {
         supportFragmentManager.commit {
-            replace(R.id.fragment_container, HabitCreatingOrEditingFragment.newInstance(habit))
+            replace(R.id.fragment_container, HabitCreatingOrEditingFragment())
             addToBackStack(null)
         }
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
