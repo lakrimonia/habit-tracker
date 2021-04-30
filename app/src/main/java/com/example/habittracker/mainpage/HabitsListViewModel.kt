@@ -44,12 +44,12 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         _goodHabits.value = mutableListOf()
         _badHabits.value = mutableListOf()
         mediatorLiveData.addSource(repository.allHabits) {
-            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD }.sortedByDescending { h -> h.priority })
-            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD }.sortedByDescending { h -> h.priority })
+            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD })
+            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD })
             colors.clear()
-            sortedHabits = it.sortedByDescending { h -> h.priority }
-            filteredByNameHabits = it.sortedByDescending { h -> h.priority }
-            filteredByColorHabits = it.sortedByDescending { h -> h.priority }
+            sortedHabits = it
+            filteredByNameHabits = it
+            filteredByColorHabits = it
             _resetFilters.value = Event(1)
         }
     }
@@ -169,11 +169,11 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
     private fun resetFilters() {
         colors.clear()
         repository.allHabits.value?.let {
-            sortedHabits = it.sortedByDescending { h -> h.priority }
-            filteredByNameHabits = it.sortedByDescending { h -> h.priority }
-            filteredByColorHabits = it.sortedByDescending { h -> h.priority }
-            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD }.sortedByDescending { h -> h.priority })
-            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD }.sortedByDescending { h -> h.priority })
+            sortedHabits = it
+            filteredByNameHabits = it
+            filteredByColorHabits = it
+            changeList(_goodHabits, it.filter { h -> h.type == HabitType.GOOD })
+            changeList(_badHabits, it.filter { h -> h.type == HabitType.BAD })
         }
     }
 }

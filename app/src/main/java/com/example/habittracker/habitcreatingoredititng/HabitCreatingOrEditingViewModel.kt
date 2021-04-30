@@ -132,21 +132,36 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     }
 
     fun clickOnFab() {
-        if (habitName == null || habitPeriodicityTimes == null || habitPeriodicityDays == null)
+        if (habitName == null || habitPeriodicityTimes == null || habitPeriodicityDays == null) {
             _saveChanges.value = Event(0)
-        val id = habitToEditId ?: repository.nextHabitId
-        val creatingDate = habitCreatingDate ?: Calendar.getInstance()
-        val habit = Habit(
-            id,
-            habitName!!,
-            habitDescription ?: "",
-            habitPriority ?: HabitPriority.HIGH,
-            habitType ?: HabitType.GOOD,
-            habitPeriodicityTimes!! to habitPeriodicityDays!!,
-            habitColor!!,
-            creatingDate
-        )
-        repository.insert(habit)
-        _saveChanges.value = Event(habit)
+            return
+        }
+        if (habitToEditId != null && habitCreatingDate != null) {
+            val habit = Habit(
+                habitName!!,
+                habitDescription ?: "",
+                habitPriority ?: HabitPriority.HIGH,
+                habitType ?: HabitType.GOOD,
+                habitPeriodicityTimes!! to habitPeriodicityDays!!,
+                habitColor!!,
+                habitCreatingDate!!,
+                habitToEditId!!
+            )
+            repository.update(habit)
+            _saveChanges.value = Event(habit)
+        } else {
+            val habit = Habit(
+                habitName!!,
+                habitDescription ?: "",
+                habitPriority ?: HabitPriority.HIGH,
+                habitType ?: HabitType.GOOD,
+                habitPeriodicityTimes!! to habitPeriodicityDays!!,
+                habitColor!!,
+                Calendar.getInstance()
+            )
+
+            repository.insert(habit)
+            _saveChanges.value = Event(habit)
+        }
     }
 }
