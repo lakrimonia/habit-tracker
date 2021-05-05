@@ -1,14 +1,13 @@
 package com.example.habittracker.habitcreatingoredititng
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.example.habittracker.Event
 import com.example.habittracker.model.Habit
 import com.example.habittracker.model.HabitPriority
 import com.example.habittracker.model.HabitRepository
 import com.example.habittracker.model.HabitType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel() {
@@ -33,7 +32,9 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private val _color by lazy {
         MutableLiveData<Int>()
     }
-    private val _saveChanges = MutableLiveData<Event<Any>>()
+    private val _saveChanges by lazy {
+        MutableLiveData<Event<Any>>()
+    }
 
     val name: LiveData<String> = _name
     val description: LiveData<String> = _description
@@ -136,32 +137,33 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             _saveChanges.value = Event(0)
             return
         }
-        if (habitToEditId != null && habitCreatingDate != null) {
-            val habit = Habit(
-                habitName!!,
-                habitDescription ?: "",
-                habitPriority ?: HabitPriority.HIGH,
-                habitType ?: HabitType.GOOD,
-                habitPeriodicityTimes!! to habitPeriodicityDays!!,
-                habitColor!!,
-                habitCreatingDate!!,
-                habitToEditId!!
-            )
-            repository.update(habit)
-            _saveChanges.value = Event(habit)
-        } else {
-            val habit = Habit(
-                habitName!!,
-                habitDescription ?: "",
-                habitPriority ?: HabitPriority.HIGH,
-                habitType ?: HabitType.GOOD,
-                habitPeriodicityTimes!! to habitPeriodicityDays!!,
-                habitColor!!,
-                Calendar.getInstance()
-            )
+        viewModelScope.launch(Dispatchers.Default) {
+            if (habitToEditId != null && habitCreatingDate != null) {
+                val habit = Habit(
+                    habitName!!,
+                    habitDescription ?: "...",
+                    habitPriority ?: HabitPriority.HIGH,
+                    habitType ?: HabitType.GOOD,
+                    habitPeriodicityTimes!! to habitPeriodicityDays!!,
+                    habitColor!!,
+                    habitCreatingDate!!,
+                    habitToEditId!!
+                )
+                repository.update(habit)
+            } else {
+                val habit = Habit(
+                    habitName!!,
+                    habitDescription ?: "...",
+                    habitPriority ?: HabitPriority.HIGH,
+                    habitType ?: HabitType.GOOD,
+                    habitPeriodicityTimes!! to habitPeriodicityDays!!,
+                    habitColor!!,
+                    Calendar.getInstance()
+                )
 
-            repository.insert(habit)
-            _saveChanges.value = Event(habit)
+                repository.insert(habit)
+            }
         }
+        _saveChanges.value = Event(0)
     }
 }

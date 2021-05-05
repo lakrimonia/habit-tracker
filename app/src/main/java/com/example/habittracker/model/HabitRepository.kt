@@ -10,24 +10,24 @@ class HabitRepository(private val habitDao: HabitDao) {
         }
         val HABIT_TO_EDIT: LiveData<Habit> = habitToEdit
 
-        fun setHabitToEdit(habit: Habit) {
+        fun setHabitToEdit(habit: Habit?) {
             habitToEdit.value = habit
         }
     }
 
     val allHabits = habitDao.getAll()
 
-    fun insert(habit: Habit) {
+    suspend fun insert(habit: Habit) {
         habitDao.insert(habit)
-        habitToEdit.value = null
+        habitToEdit.postValue(null)
     }
 
-    fun update(habit: Habit) {
+    suspend fun update(habit: Habit) {
         habitDao.update(habit)
-        habitToEdit.value = null
+        habitToEdit.postValue(null)
     }
 
-    fun clear() {
+    suspend fun clear() {
         habitDao.clear()
     }
 }

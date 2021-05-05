@@ -8,15 +8,12 @@ interface HabitDao {
     @Query("SELECT * FROM habit_table ORDER BY priority DESC")
     fun getAll(): LiveData<List<Habit>>
 
-    @Query("SELECT COUNT(*) FROM habit_table")
-    fun getCount(): Int
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(habit: Habit)
+    suspend fun insert(habit: Habit)
 
     @Update
-    fun update(habit: Habit)
+    suspend fun update(habit: Habit)
 
     @Query("DELETE FROM habit_table")
-    fun clear()
+    suspend fun clear()
 }
