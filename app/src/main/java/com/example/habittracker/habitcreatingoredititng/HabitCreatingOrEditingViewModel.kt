@@ -11,39 +11,39 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel() {
-    private val _name by lazy {
+    private val mutableName by lazy {
         MutableLiveData<String>()
     }
-    private val _description by lazy {
+    private val mutableDescription by lazy {
         MutableLiveData<String>()
     }
-    private val _priority by lazy {
+    private val mutablePriority by lazy {
         MutableLiveData<HabitPriority>()
     }
-    private val _type by lazy {
+    private val mutableType by lazy {
         MutableLiveData<HabitType>()
     }
-    private val _periodicityTimes by lazy {
+    private val mutablePeriodicityTimes by lazy {
         MutableLiveData<Int>()
     }
-    private val _periodicityDays by lazy {
+    private val mutablePeriodicityDays by lazy {
         MutableLiveData<Int>()
     }
-    private val _color by lazy {
+    private val mutableColor by lazy {
         MutableLiveData<Int>()
     }
-    private val _saveChanges by lazy {
+    private val mutableSaveChanges by lazy {
         MutableLiveData<Event<Any>>()
     }
 
-    val name: LiveData<String> = _name
-    val description: LiveData<String> = _description
-    val priority: LiveData<HabitPriority> = _priority
-    val type: LiveData<HabitType> = _type
-    val periodicityTimes: LiveData<Int> = _periodicityTimes
-    val periodicityDays: LiveData<Int> = _periodicityDays
-    val color: LiveData<Int> = _color
-    val saveChanges: LiveData<Event<Any>> = _saveChanges
+    val name: LiveData<String> = mutableName
+    val description: LiveData<String> = mutableDescription
+    val priority: LiveData<HabitPriority> = mutablePriority
+    val type: LiveData<HabitType> = mutableType
+    val periodicityTimes: LiveData<Int> = mutablePeriodicityTimes
+    val periodicityDays: LiveData<Int> = mutablePeriodicityDays
+    val color: LiveData<Int> = mutableColor
+    val saveChanges: LiveData<Event<Any>> = mutableSaveChanges
 
     private var habitToEditId: Int? = null
     private var habitName: String? = null
@@ -55,18 +55,28 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private var habitColor: Int? = null
     private var habitCreatingDate: Calendar? = null
 
-    private val _nameNotEntered by lazy {
+//    private var habitToEditId: String = ""
+//    private var habitName: String = ""
+//    private var habitDescription: String = ""
+//    private var habitPriority: String = ""
+//    private var habitType: String = ""
+//    private var habitPeriodicityTimes: String = ""
+//    private var habitPeriodicityDays: String = ""
+//    private var habitColor: String = ""
+//    private var habitCreatingDate: String = ""
+
+    private val mutableNameNotEntered by lazy {
         MutableLiveData<Boolean>()
     }
-    val nameNotEntered: LiveData<Boolean> = _nameNotEntered
-    private val _timesNotEntered by lazy {
+    val nameNotEntered: LiveData<Boolean> = mutableNameNotEntered
+    private val mutableTimesNotEntered by lazy {
         MutableLiveData<Boolean>()
     }
-    val timesNotEntered: LiveData<Boolean> = _timesNotEntered
-    private val _daysNotEntered by lazy {
+    val timesNotEntered: LiveData<Boolean> = mutableTimesNotEntered
+    private val mutableDaysNotEntered by lazy {
         MutableLiveData<Boolean>()
     }
-    val daysNotEntered: LiveData<Boolean> = _daysNotEntered
+    val daysNotEntered: LiveData<Boolean> = mutableDaysNotEntered
 
     val mediatorLiveData: MediatorLiveData<Habit> by lazy {
         MediatorLiveData()
@@ -87,7 +97,7 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             return
         }
         habitName = name
-        _nameNotEntered.value = false
+        mutableNameNotEntered.value = false
     }
 
     fun setDescription(description: String?) {
@@ -106,14 +116,14 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         habitPeriodicityTimes = periodicityTimes
         if (periodicityTimes == null)
             return
-        _timesNotEntered.value = false
+        mutableTimesNotEntered.value = false
     }
 
     fun setPeriodicityDays(periodicityDays: Int?) {
         habitPeriodicityDays = periodicityDays
         if (periodicityDays == null)
             return
-        _daysNotEntered.value = false
+        mutableDaysNotEntered.value = false
     }
 
     fun setColor(color: Int) {
@@ -121,13 +131,13 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     }
 
     fun setValues() {
-        _name.value = habitName
-        _description.value = habitDescription
-        _priority.value = habitPriority
-        _type.value = habitType
-        _periodicityTimes.value = habitPeriodicityTimes
-        _periodicityDays.value = habitPeriodicityDays
-        _color.value = habitColor
+        mutableName.value = habitName
+        mutableDescription.value = habitDescription
+        mutablePriority.value = habitPriority
+        mutableType.value = habitType
+        mutablePeriodicityTimes.value = habitPeriodicityTimes
+        mutablePeriodicityDays.value = habitPeriodicityDays
+        mutableColor.value = habitColor
     }
 
     private fun editHabit(habit: Habit) {
@@ -158,9 +168,9 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
 
     fun clickOnFab() {
         if (habitName == null || habitPeriodicityTimes == null || habitPeriodicityDays == null) {
-            _nameNotEntered.value = habitName == null
-            _timesNotEntered.value = habitPeriodicityTimes == null
-            _daysNotEntered.value = habitPeriodicityDays == null
+            mutableNameNotEntered.value = habitName == null
+            mutableTimesNotEntered.value = habitPeriodicityTimes == null
+            mutableDaysNotEntered.value = habitPeriodicityDays == null
             return
         }
         viewModelScope.launch(Dispatchers.Default) {
@@ -190,6 +200,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
                 repository.insert(habit)
             }
         }
-        _saveChanges.value = Event(0)
+        mutableSaveChanges.value = Event(0)
     }
 }
