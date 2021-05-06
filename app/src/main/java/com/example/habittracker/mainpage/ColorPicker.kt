@@ -78,7 +78,7 @@ object ColorPicker {
             val y = 0
             val color = ColorDrawable(b.getPixel(x, y))
             button.background = color
-            ViewCompat.setElevation(button, 5f)
+            ViewCompat.setElevation(button, 15f)
             button.setOnClickListener { buttonOnClick(it) }
             colorsScroll.addView(button)
         }

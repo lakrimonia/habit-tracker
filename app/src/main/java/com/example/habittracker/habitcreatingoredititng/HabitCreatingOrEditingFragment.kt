@@ -1,6 +1,7 @@
 package com.example.habittracker.habitcreatingoredititng
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -14,9 +15,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ImageButton
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModel
@@ -205,5 +204,66 @@ class HabitCreatingOrEditingFragment : Fragment() {
                 viewModel.setColor((binding.currentColorIcon.drawable as ColorDrawable).color)
             }
         })
+
+        viewModel.nameNotEntered.observe(viewLifecycleOwner, { isNotEntered ->
+            if (isNotEntered) {
+                changeColor(Color.RED, binding.nameField, binding.nameFieldEditing)
+                binding.nameNotEntered.visibility = View.VISIBLE
+            } else {
+                changeColor(Color.BLACK, binding.nameField, binding.nameFieldEditing)
+                binding.nameNotEntered.visibility = View.INVISIBLE
+            }
+        })
+
+        viewModel.timesNotEntered.observe(viewLifecycleOwner, { isNotEntered ->
+            if (isNotEntered) {
+                changeColor(
+                    Color.RED,
+                    binding.periodicityField,
+                    binding.timesFieldEditing,
+                    binding.periodicityFieldFirstPart
+                )
+                binding.periodicityTimesNotEntered.visibility = View.VISIBLE
+            } else {
+                changeColor(
+                    Color.BLACK,
+                    binding.periodicityField,
+                    binding.timesFieldEditing,
+                    binding.periodicityFieldFirstPart
+                )
+                binding.periodicityTimesNotEntered.visibility = View.INVISIBLE
+            }
+        })
+
+        viewModel.daysNotEntered.observe(viewLifecycleOwner, { isNotEntered ->
+            if (isNotEntered) {
+                changeColor(
+                    Color.RED,
+                    binding.periodicityField,
+                    binding.daysFieldEditing,
+                    binding.periodicityFieldSecondPart
+                )
+                binding.periodicityDaysNotEntered.visibility = View.VISIBLE
+            } else {
+                changeColor(
+                    Color.BLACK,
+                    binding.periodicityField,
+                    binding.daysFieldEditing,
+                    binding.periodicityFieldSecondPart
+                )
+                binding.periodicityDaysNotEntered.visibility = View.INVISIBLE
+            }
+        })
+    }
+
+    private fun changeColor(color: Int, vararg views: View) {
+        views.forEach {
+            if (it is TextView)
+                it.setTextColor(color)
+            if (it is EditText) {
+                val colorStateList = ColorStateList.valueOf(color)
+                ViewCompat.setBackgroundTintList(it, colorStateList)
+            }
+        }
     }
 }

@@ -55,6 +55,19 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private var habitColor: Int? = null
     private var habitCreatingDate: Calendar? = null
 
+    private val _nameNotEntered by lazy {
+        MutableLiveData<Boolean>()
+    }
+    val nameNotEntered: LiveData<Boolean> = _nameNotEntered
+    private val _timesNotEntered by lazy {
+        MutableLiveData<Boolean>()
+    }
+    val timesNotEntered: LiveData<Boolean> = _timesNotEntered
+    private val _daysNotEntered by lazy {
+        MutableLiveData<Boolean>()
+    }
+    val daysNotEntered: LiveData<Boolean> = _daysNotEntered
+
     val mediatorLiveData: MediatorLiveData<Habit> by lazy {
         MediatorLiveData()
     }
@@ -69,7 +82,12 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     }
 
     fun setName(name: String?) {
+        if (name == "") {
+            habitName = null
+            return
+        }
         habitName = name
+        _nameNotEntered.value = false
     }
 
     fun setDescription(description: String?) {
@@ -86,10 +104,16 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
 
     fun setPeriodicityTimes(periodicityTimes: Int?) {
         habitPeriodicityTimes = periodicityTimes
+        if (periodicityTimes == null)
+            return
+        _timesNotEntered.value = false
     }
 
     fun setPeriodicityDays(periodicityDays: Int?) {
         habitPeriodicityDays = periodicityDays
+        if (periodicityDays == null)
+            return
+        _daysNotEntered.value = false
     }
 
     fun setColor(color: Int) {
@@ -134,7 +158,9 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
 
     fun clickOnFab() {
         if (habitName == null || habitPeriodicityTimes == null || habitPeriodicityDays == null) {
-            _saveChanges.value = Event(0)
+            _nameNotEntered.value = habitName == null
+            _timesNotEntered.value = habitPeriodicityTimes == null
+            _daysNotEntered.value = habitPeriodicityDays == null
             return
         }
         viewModelScope.launch(Dispatchers.Default) {

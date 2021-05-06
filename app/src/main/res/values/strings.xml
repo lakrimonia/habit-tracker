@@ -39,4 +39,5 @@
     <string name="open_drawer">Open drawer</string>
     <string name="close_drawer">Close drawer</string>
     <string name="reset_all_filters">Сбросить все фильтры</string>
+    <string name="should_enter">*нужно заполнить</string>
 </resources>
