@@ -19,7 +19,6 @@ class HabitRepository(private val habitDao: HabitDao) {
 
     suspend fun insert(habit: Habit) {
         habitDao.insert(habit)
-        habitToEdit.postValue(null)
     }
 
     suspend fun update(habit: Habit) {
