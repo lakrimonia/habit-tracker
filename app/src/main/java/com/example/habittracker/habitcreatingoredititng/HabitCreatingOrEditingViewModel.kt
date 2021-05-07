@@ -2,13 +2,11 @@ package com.example.habittracker.habitcreatingoredititng
 
 import androidx.lifecycle.*
 import com.example.habittracker.Event
-import com.example.habittracker.model.Habit
-import com.example.habittracker.model.HabitPriority
-import com.example.habittracker.model.HabitRepository
-import com.example.habittracker.model.HabitType
+import com.example.habittracker.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.properties.Delegates
 
 class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel() {
     private val mutableName by lazy {
@@ -45,25 +43,29 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     val color: LiveData<Int> = mutableColor
     val saveChanges: LiveData<Event<Any>> = mutableSaveChanges
 
-    private var habitToEditId: Int? = null
-    private var habitName: String? = null
-    private var habitDescription: String? = null
-    private var habitPriority: HabitPriority? = null
-    private var habitType: HabitType? = null
-    private var habitPeriodicityTimes: Int? = null
-    private var habitPeriodicityDays: Int? = null
-    private var habitColor: Int? = null
-    private var habitCreatingDate: Calendar? = null
+//    private var habitToEditId: Int? = null
+//    private var habitName: String? = null
+//    private var habitDescription: String? = null
+//    private var habitPriority: HabitPriority? = null
+//    private var habitType: HabitType? = null
+//    private var habitPeriodicityTimes: Int? = null
+//    private var habitPeriodicityDays: Int? = null
+//    private var habitColor: Int? = null
+//    private var habitCreatingDate: Calendar? = null
 
-//    private var habitToEditId: String = ""
-//    private var habitName: String = ""
-//    private var habitDescription: String = ""
-//    private var habitPriority: String = ""
-//    private var habitType: String = ""
-//    private var habitPeriodicityTimes: String = ""
-//    private var habitPeriodicityDays: String = ""
-//    private var habitColor: String = ""
-//    private var habitCreatingDate: String = ""
+    private val defaultDescription = "..."
+    private val defaultPriority = HabitPriority.HIGH
+    private val defaultType = HabitType.GOOD
+
+    private var habitToEditId: Int? = null
+    private var habitName: String = ""
+    private var habitDescription: String = ""
+    private var habitPriority: HabitPriority = defaultPriority
+    private var habitType: HabitType = defaultType
+    private var habitPeriodicityTimes: String = ""
+    private var habitPeriodicityDays: String = ""
+    private var habitColor: String = ""
+    private var habitCreatingDate: Calendar? = null
 
     private val mutableNameNotEntered by lazy {
         MutableLiveData<Boolean>()
@@ -91,42 +93,44 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         }
     }
 
-    fun setName(name: String?) {
-        if (name == "") {
-            habitName = null
-            return
-        }
+    fun setName(name: String) {
+//        if (name == "") {
+//            habitName = null
+//            return
+//        }
         habitName = name
+        if (name == "")
+            return
         mutableNameNotEntered.value = false
     }
 
-    fun setDescription(description: String?) {
+    fun setDescription(description: String) {
         habitDescription = description
     }
 
-    fun setPriority(priority: HabitPriority) {
-        habitPriority = priority
+    fun setPriority(priority: HabitPriority?) {
+        habitPriority = priority ?: defaultPriority
     }
 
-    fun setType(type: HabitType) {
-        habitType = type
+    fun setType(type: HabitType?) {
+        habitType = type ?: defaultType
     }
 
-    fun setPeriodicityTimes(periodicityTimes: Int?) {
+    fun setPeriodicityTimes(periodicityTimes: String) {
         habitPeriodicityTimes = periodicityTimes
-        if (periodicityTimes == null)
+        if (periodicityTimes == "")
             return
         mutableTimesNotEntered.value = false
     }
 
-    fun setPeriodicityDays(periodicityDays: Int?) {
+    fun setPeriodicityDays(periodicityDays: String) {
         habitPeriodicityDays = periodicityDays
-        if (periodicityDays == null)
+        if (periodicityDays == "")
             return
         mutableDaysNotEntered.value = false
     }
 
-    fun setColor(color: Int) {
+    fun setColor(color: String) {
         habitColor = color
     }
 
@@ -135,9 +139,11 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         mutableDescription.value = habitDescription
         mutablePriority.value = habitPriority
         mutableType.value = habitType
-        mutablePeriodicityTimes.value = habitPeriodicityTimes
-        mutablePeriodicityDays.value = habitPeriodicityDays
-        mutableColor.value = habitColor
+        mutablePeriodicityTimes.value =
+            if (habitPeriodicityTimes != "") habitPeriodicityTimes.toInt() else null
+        mutablePeriodicityDays.value =
+            if (habitPeriodicityDays != "") habitPeriodicityDays.toInt() else null
+        mutableColor.value = if (habitColor != "") habitColor.toInt() else null
     }
 
     private fun editHabit(habit: Habit) {
@@ -146,54 +152,59 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         habitDescription = habit.description
         habitPriority = habit.priority
         habitType = habit.type
-        habitPeriodicityTimes = habit.periodicityTimesPerDay.first
-        habitPeriodicityDays = habit.periodicityTimesPerDay.second
-        habitColor = habit.color
+        habitPeriodicityTimes = habit.periodicityTimesPerDay.first.toString()
+        habitPeriodicityDays = habit.periodicityTimesPerDay.second.toString()
+        habitColor = habit.color.toString()
         habitCreatingDate = habit.creatingDate
         setValues()
     }
 
     private fun clearFields() {
         habitToEditId = null
-        habitName = null
-        habitDescription = null
-        habitPriority = null
-        habitType = null
-        habitPeriodicityTimes = null
-        habitPeriodicityDays = null
-        habitColor = null
+        habitName = ""
+        habitDescription = ""
+        habitPriority = defaultPriority
+        habitType = defaultType
+        habitPeriodicityTimes = ""
+        habitPeriodicityDays = ""
+        habitColor = ""
         habitCreatingDate = null
         setValues()
     }
 
     fun clickOnFab() {
-        if (habitName == null || habitPeriodicityTimes == null || habitPeriodicityDays == null) {
-            mutableNameNotEntered.value = habitName == null
-            mutableTimesNotEntered.value = habitPeriodicityTimes == null
-            mutableDaysNotEntered.value = habitPeriodicityDays == null
+        if (habitName == "" || habitPeriodicityTimes == "" || habitPeriodicityDays == "") {
+            mutableNameNotEntered.value = habitName == ""
+            mutableTimesNotEntered.value = habitPeriodicityTimes == ""
+            mutableDaysNotEntered.value = habitPeriodicityDays == ""
             return
         }
         viewModelScope.launch(Dispatchers.Default) {
+            if (habitDescription == "") habitDescription = defaultDescription
             if (habitToEditId != null && habitCreatingDate != null) {
-                val habit = Habit(
-                    habitName!!,
-                    habitDescription ?: "...",
-                    habitPriority ?: HabitPriority.HIGH,
-                    habitType ?: HabitType.GOOD,
-                    habitPeriodicityTimes!! to habitPeriodicityDays!!,
-                    habitColor!!,
-                    habitCreatingDate!!,
-                    habitToEditId!!
-                )
-                repository.update(habit)
+                habitToEditId?.let { id ->
+                    habitCreatingDate?.let { creatingDate ->
+                        val habit = Habit(
+                            habitName,
+                            habitDescription,
+                            habitPriority,
+                            habitType,
+                            habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
+                            habitColor.toInt(),
+                            creatingDate,
+                            id
+                        )
+                        repository.update(habit)
+                    }
+                }
             } else {
                 val habit = Habit(
-                    habitName!!,
-                    habitDescription ?: "...",
-                    habitPriority ?: HabitPriority.HIGH,
-                    habitType ?: HabitType.GOOD,
-                    habitPeriodicityTimes!! to habitPeriodicityDays!!,
-                    habitColor!!,
+                    habitName,
+                    habitDescription,
+                    habitPriority,
+                    habitType,
+                    habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
+                    habitColor.toInt(),
                     Calendar.getInstance()
                 )
 

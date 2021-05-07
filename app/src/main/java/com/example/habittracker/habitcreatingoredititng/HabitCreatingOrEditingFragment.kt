@@ -2,21 +2,16 @@ package com.example.habittracker.habitcreatingoredititng
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -53,7 +48,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
         ColorPicker.create(requireContext(), resources, binding.colorsScroll) {
             val color = it?.background as ColorDrawable
             binding.currentColorIcon.setImageDrawable(color)
-            viewModel.setColor(color.color)
+            viewModel.setColor(color.color.toString())
         }
         binding.floatingActionButton.setOnClickListener {
             viewModel.clickOnFab()
@@ -111,7 +106,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
                 }
             }
 
-        binding.typeFieldEditing.setOnCheckedChangeListener { group, checkedId ->
+        binding.typeFieldEditing.setOnCheckedChangeListener { _, checkedId ->
             viewModel.setType(
                 when (checkedId) {
                     binding.goodHabitButton.id -> HabitType.GOOD
@@ -127,8 +122,8 @@ class HabitCreatingOrEditingFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val times = s.toString()
                 if (times != "")
-                    viewModel.setPeriodicityTimes(times.toInt())
-                else viewModel.setPeriodicityTimes(null)
+                    viewModel.setPeriodicityTimes(times)
+                else viewModel.setPeriodicityTimes("")
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -141,8 +136,8 @@ class HabitCreatingOrEditingFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val days = s.toString()
                 if (days != "")
-                    viewModel.setPeriodicityDays(days.toInt())
-                else viewModel.setPeriodicityDays(null)
+                    viewModel.setPeriodicityDays(days)
+                else viewModel.setPeriodicityDays("")
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -201,7 +196,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
             else {
                 val firstColorIcon = binding.colorsScroll.getChildAt(0) as ImageButton
                 binding.currentColorIcon.setImageDrawable(firstColorIcon.background)
-                viewModel.setColor((binding.currentColorIcon.drawable as ColorDrawable).color)
+                viewModel.setColor((binding.currentColorIcon.drawable as ColorDrawable).color.toString())
             }
         })
 
