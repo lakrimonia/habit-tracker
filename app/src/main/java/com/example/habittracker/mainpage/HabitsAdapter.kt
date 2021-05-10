@@ -63,7 +63,7 @@ class HabitsAdapter(
             binding.habitCreatingDate.text = SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",
                 Locale.getDefault()
-            ).format(habit.creatingDate.time)
+            ).format(habit.creatingDate)//.time)
         }
     }
 

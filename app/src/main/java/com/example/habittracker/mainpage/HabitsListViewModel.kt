@@ -2,9 +2,12 @@ package com.example.habittracker.mainpage
 
 import androidx.lifecycle.*
 import com.example.habittracker.Event
+import com.example.habittracker.RetrofitClient
 import com.example.habittracker.model.Habit
 import com.example.habittracker.model.HabitRepository
 import com.example.habittracker.model.HabitType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class HabitsListViewModel(private val repository: HabitRepository) : ViewModel() {
     val mediatorLiveData: MediatorLiveData<List<Habit>> by lazy {
@@ -43,6 +46,10 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
     init {
         mutableGoodHabits.value = mutableListOf()
         mutableBadHabits.value = mutableListOf()
+        viewModelScope.launch(Dispatchers.Default) {
+            val habits = RetrofitClient.SERVICE.getHabits()
+            habits.forEach { repository.insert(it) }
+        }
         mediatorLiveData.addSource(repository.allHabits) {
             changeList(mutableGoodHabits, it.filter { h -> h.type == HabitType.GOOD })
             changeList(mutableBadHabits, it.filter { h -> h.type == HabitType.BAD })

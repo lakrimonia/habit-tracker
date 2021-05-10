@@ -6,7 +6,6 @@ import com.example.habittracker.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.properties.Delegates
 
 class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel() {
     private val mutableName by lazy {
@@ -43,21 +42,11 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     val color: LiveData<Int> = mutableColor
     val saveChanges: LiveData<Event<Any>> = mutableSaveChanges
 
-//    private var habitToEditId: Int? = null
-//    private var habitName: String? = null
-//    private var habitDescription: String? = null
-//    private var habitPriority: HabitPriority? = null
-//    private var habitType: HabitType? = null
-//    private var habitPeriodicityTimes: Int? = null
-//    private var habitPeriodicityDays: Int? = null
-//    private var habitColor: Int? = null
-//    private var habitCreatingDate: Calendar? = null
-
     private val defaultDescription = "..."
     private val defaultPriority = HabitPriority.HIGH
     private val defaultType = HabitType.GOOD
 
-    private var habitToEditId: Int? = null
+    private var habitToEditId: String? = null
     private var habitName: String = ""
     private var habitDescription: String = ""
     private var habitPriority: HabitPriority = defaultPriority
@@ -65,7 +54,7 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private var habitPeriodicityTimes: String = ""
     private var habitPeriodicityDays: String = ""
     private var habitColor: String = ""
-    private var habitCreatingDate: Calendar? = null
+    private var habitCreatingDate: Long? = null
 
     private val mutableNameNotEntered by lazy {
         MutableLiveData<Boolean>()
@@ -94,10 +83,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     }
 
     fun setName(name: String) {
-//        if (name == "") {
-//            habitName = null
-//            return
-//        }
         habitName = name
         if (name == "")
             return
@@ -179,37 +164,26 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             mutableDaysNotEntered.value = habitPeriodicityDays == ""
             return
         }
+        if (habitDescription == "") habitDescription = defaultDescription
+        val habit = Habit(
+            habitName,
+            habitDescription,
+            habitPriority,
+            habitType,
+            habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
+            habitColor.toInt(),
+            Calendar.getInstance().time.time,
+            habitToEditId ?: ""
+        )
         viewModelScope.launch(Dispatchers.Default) {
-            if (habitDescription == "") habitDescription = defaultDescription
             if (habitToEditId != null && habitCreatingDate != null) {
-                habitToEditId?.let { id ->
-                    habitCreatingDate?.let { creatingDate ->
-                        val habit = Habit(
-                            habitName,
-                            habitDescription,
-                            habitPriority,
-                            habitType,
-                            habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
-                            habitColor.toInt(),
-                            creatingDate,
-                            id
-                        )
-                        repository.update(habit)
-                    }
-                }
+                repository.update(habit)
             } else {
-                val habit = Habit(
-                    habitName,
-                    habitDescription,
-                    habitPriority,
-                    habitType,
-                    habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
-                    habitColor.toInt(),
-                    Calendar.getInstance()
-                )
-
                 repository.insert(habit)
             }
+        }
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.addOrUpdateHabitOnServer(habit)
         }
         mutableSaveChanges.value = Event(0)
     }

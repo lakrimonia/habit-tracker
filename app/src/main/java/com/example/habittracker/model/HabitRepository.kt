@@ -2,6 +2,7 @@ package com.example.habittracker.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.habittracker.RetrofitClient
 
 class HabitRepository(private val habitDao: HabitDao) {
     companion object {
@@ -16,6 +17,10 @@ class HabitRepository(private val habitDao: HabitDao) {
     }
 
     val allHabits = habitDao.getAll()
+
+    suspend fun addOrUpdateHabitOnServer(habit: Habit) {
+        RetrofitClient.SERVICE.addOrUpdateHabit(habit)
+    }
 
     suspend fun insert(habit: Habit) {
         habitDao.insert(habit)
