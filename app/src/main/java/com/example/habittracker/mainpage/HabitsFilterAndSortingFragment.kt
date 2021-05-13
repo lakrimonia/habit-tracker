@@ -55,10 +55,10 @@ class HabitsFilterAndSortingFragment : Fragment() {
             viewModel.sortHabitsByNameDescending()
         }
         binding.sortByDateFromLowToHigh.setOnClickListener {
-            viewModel.sortHabitsByCreatingDateAscending()
+            viewModel.sortHabitsByChangingDateAscending()
         }
         binding.sortByDateFromHighToLow.setOnClickListener {
-            viewModel.sortHabitsByCreatingDateDescending()
+            viewModel.sortHabitsByChangingDateDescending()
         }
         binding.findByName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

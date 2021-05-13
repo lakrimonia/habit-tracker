@@ -18,10 +18,10 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
         val times = json.asJsonObject.get("frequency").asInt
         val days = json.asJsonObject.get("count").asInt
         val color = json.asJsonObject.get("color").asInt
-        val creatingDate = json.asJsonObject.get("date").asLong
+        val changingDate = json.asJsonObject.get("date").asLong
         val id = json.asJsonObject.get("uid").asString
         return Habit(
-            name, description, priority, type, times to days, color, creatingDate, id
+            name, description, priority, type, times to days, color, changingDate, id
         )
     }
 }

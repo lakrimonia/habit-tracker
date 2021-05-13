@@ -14,7 +14,7 @@ data class Habit(
     @ColumnInfo val type: HabitType,
     val periodicityTimesPerDay: Pair<Int, Int>,
     @ColumnInfo val color: Int,
-    @ColumnInfo val creatingDate: Long,
+    @ColumnInfo val changingDate: Long,
     @PrimaryKey val id: String = ""
 )
 

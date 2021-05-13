@@ -3,16 +3,24 @@ package com.example.habittracker
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ImageView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.bumptech.glide.Glide
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.module.AppGlideModule
 import com.example.habittracker.databinding.ActivityMainBinding
+import com.example.habittracker.databinding.NavHeaderMainBinding
 import com.example.habittracker.habitcreatingoredititng.HabitCreatingOrEditingFragment
 import com.example.habittracker.mainpage.MainPageFragment
 import com.example.habittracker.model.HabitRepository
 import com.google.android.material.navigation.NavigationView
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
 class MainActivity : AppCompatActivity(), MainActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -23,6 +31,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
+
         setContentView(view)
         if (savedInstanceState == null)
             supportFragmentManager.commit {
@@ -40,6 +49,23 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.navView.setNavigationItemSelectedListener(this)
+        setAvatar()
+    }
+
+    private fun setAvatar(){
+        val imageView = binding.navView.getHeaderView(0).findViewById<ImageView>(R.id.avatar)
+        val placeholder = CircularProgressDrawable(this)
+        placeholder.centerRadius=30f
+        placeholder.strokeWidth=5f
+        placeholder.start()
+
+        Glide.with(this)
+            .load("https://mem-baza.ru/_ph/1/2/990419753.jpg?1600930052")
+            .override(300,300)
+            .placeholder(placeholder)
+            .error(R.drawable.ic_avatar_loading_error)
+            .circleCrop()
+            .into(imageView)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

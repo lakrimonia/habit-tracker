@@ -3,8 +3,7 @@ package com.example.habittracker.habitcreatingoredititng
 import androidx.lifecycle.*
 import com.example.habittracker.Event
 import com.example.habittracker.model.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel() {
@@ -54,7 +53,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private var habitPeriodicityTimes: String = ""
     private var habitPeriodicityDays: String = ""
     private var habitColor: String = ""
-    private var habitCreatingDate: Long? = null
 
     private val mutableNameNotEntered by lazy {
         MutableLiveData<Boolean>()
@@ -140,7 +138,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         habitPeriodicityTimes = habit.periodicityTimesPerDay.first.toString()
         habitPeriodicityDays = habit.periodicityTimesPerDay.second.toString()
         habitColor = habit.color.toString()
-        habitCreatingDate = habit.creatingDate
         setValues()
     }
 
@@ -153,7 +150,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         habitPeriodicityTimes = ""
         habitPeriodicityDays = ""
         habitColor = ""
-        habitCreatingDate = null
         setValues()
     }
 
@@ -175,15 +171,8 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             Calendar.getInstance().time.time,
             habitToEditId ?: ""
         )
-        viewModelScope.launch(Dispatchers.Default) {
-            if (habitToEditId != null && habitCreatingDate != null) {
-                repository.update(habit)
-            } else {
-                repository.insert(habit)
-            }
-        }
-        viewModelScope.launch(Dispatchers.Default) {
-            repository.addOrUpdateHabitOnServer(habit)
+        viewModelScope.launch(Dispatchers.Default + CoroutineExceptionHandler { _, e -> throw e }) {
+            repository.insert(habit)
         }
         mutableSaveChanges.value = Event(0)
     }

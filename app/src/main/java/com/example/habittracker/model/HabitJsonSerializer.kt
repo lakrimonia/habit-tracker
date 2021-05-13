@@ -14,7 +14,7 @@ class HabitJsonSerializer : JsonSerializer<Habit> {
     ): JsonElement = JsonObject().apply {
         addProperty("color", src.color)
         addProperty("count", src.periodicityTimesPerDay.second)
-        addProperty("date", src.creatingDate)
+        addProperty("date", src.changingDate)
         addProperty("description", src.description)
         addProperty("frequency", src.periodicityTimesPerDay.first)
         addProperty("priority", src.priority.ordinal)

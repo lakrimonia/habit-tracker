@@ -4,8 +4,15 @@ import com.example.habittracker.model.Habit
 import com.example.habittracker.model.HabitJsonDeserializer
 import com.example.habittracker.model.HabitJsonSerializer
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okhttp3.Call
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.internal.connection.ConnectInterceptor
+import okhttp3.internal.http.RetryAndFollowUpInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -19,7 +26,6 @@ object RetrofitClient {
             val builder = originalRequest.newBuilder()
                 .header("accept", "application/json")
                 .header("Authorization", TOKEN)
-
             val newRequest = builder.build()
             chain.proceed(newRequest)
         }
