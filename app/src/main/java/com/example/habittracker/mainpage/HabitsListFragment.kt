@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.example.habittracker.MainActivityCallback
-import com.example.habittracker.RetrofitClient
 import com.example.habittracker.databinding.FragmentHabitsListBinding
 import com.example.habittracker.model.Habit
 import com.example.habittracker.model.HabitDatabase

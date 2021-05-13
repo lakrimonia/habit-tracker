@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
-import com.example.habittracker.RetrofitClient
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 import com.example.habittracker.mainpage.ColorPicker
 import com.example.habittracker.model.*

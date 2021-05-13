@@ -3,8 +3,6 @@ package com.example.habittracker.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.example.habittracker.HabitUID
-import com.example.habittracker.RetrofitClient
 
 class HabitRepository(private val habitDao: HabitDao) {
     companion object {

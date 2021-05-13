@@ -1,6 +1,5 @@
-package com.example.habittracker
+package com.example.habittracker.model
 
-import com.example.habittracker.model.Habit
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HTTP
