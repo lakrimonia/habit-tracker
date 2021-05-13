@@ -19,13 +19,13 @@ class HabitRepository(private val habitDao: HabitDao) {
     }
 
     val allHabits: LiveData<List<Habit>> = liveData {
-        emitSource(habitDao.getAll())
         val habits = RetrofitClient.SERVICE.getHabits()
         habits.forEach { h -> habitDao.insert(h) }
+        emitSource(habitDao.getAll())
     }
 
     suspend fun insert(habit: Habit) {
-        val uid = RetrofitClient.SERVICE.addOrUpdateHabit(habit).uid
+        val uid = RetrofitClient.SERVICE.addOrUpdateHabit(habit)
         habitDao.insert(
             Habit(
                 habit.name,
@@ -35,7 +35,7 @@ class HabitRepository(private val habitDao: HabitDao) {
                 habit.periodicityTimesPerDay,
                 habit.color,
                 habit.changingDate,
-                uid
+                uid.uid
             )
         )
         habitToEdit.postValue(null)

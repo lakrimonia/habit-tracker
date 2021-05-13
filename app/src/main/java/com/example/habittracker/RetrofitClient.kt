@@ -24,7 +24,6 @@ object RetrofitClient {
         val interceptor = Interceptor { chain ->
             val originalRequest = chain.request()
             val builder = originalRequest.newBuilder()
-                .header("accept", "application/json")
                 .header("Authorization", TOKEN)
             val newRequest = builder.build()
             chain.proceed(newRequest)

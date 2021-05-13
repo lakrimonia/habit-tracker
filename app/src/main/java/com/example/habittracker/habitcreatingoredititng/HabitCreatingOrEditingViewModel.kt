@@ -5,8 +5,9 @@ import com.example.habittracker.Event
 import com.example.habittracker.model.*
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
-class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel() {
+class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel(), CoroutineScope {
     private val mutableName by lazy {
         MutableLiveData<String>()
     }
@@ -70,6 +71,10 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     val mediatorLiveData: MediatorLiveData<Habit> by lazy {
         MediatorLiveData()
     }
+
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default + job + CoroutineExceptionHandler { _, e -> throw e }
 
     init {
         mediatorLiveData.addSource(HabitRepository.HABIT_TO_EDIT) {
@@ -171,9 +176,12 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             Calendar.getInstance().time.time,
             habitToEditId ?: ""
         )
-        viewModelScope.launch(Dispatchers.Default + CoroutineExceptionHandler { _, e -> throw e }) {
-            repository.insert(habit)
-        }
+        save(habit)
         mutableSaveChanges.value = Event(0)
     }
+
+    private fun save(habit: Habit) =
+        launch {
+            repository.insert(habit)
+        }
 }
