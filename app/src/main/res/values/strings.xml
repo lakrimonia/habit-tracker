@@ -29,6 +29,7 @@
         <item quantity="other">%d дней</item>
     </plurals>
     <string name="periodicity">Выполнять %1$s в %2$s</string>
+    <string name="completions_count">%1$s/%2$s</string>
 
     <string name="about_app">В этом приложении можно создавать и редактировать привычки.</string>
     <string name="main_page_menu_item">Главная страница</string>
@@ -41,4 +42,8 @@
     <string name="close_drawer">Close drawer</string>
     <string name="reset_all_filters">Сбросить все фильтры</string>
     <string name="should_enter">*нужно заполнить</string>
+    <string name="sort_by_priority_field_title">Сортировать по приоритету</string>
+    <string name="sort_by_name_field_title">Сортировать по названию</string>
+    <string name="sort_by_changing_date_field_title">Сортировать по дате изменения</string>
+    <string name="search_by_name_field">Поиск по названию…</string>
 </resources>

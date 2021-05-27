@@ -1,49 +1,45 @@
 package com.example.habittracker.mainpage
 
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.Habit
+import com.example.domain.HabitType
 import com.example.habittracker.R
 import com.example.habittracker.databinding.HabitItemBinding
-import com.example.habittracker.model.Habit
-import com.example.habittracker.model.HabitType
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 class HabitsAdapter(
     private val habits: MutableList<Habit>,
-    private val onClick: (Habit) -> Unit
+    private val habitCompletedButtonOnClick: (Habit) -> Unit,
+    private val editHabitOnClick: (Habit) -> Unit,
+    private val deleteHabitOnClick: (Habit) -> Unit
 ) : RecyclerView.Adapter<HabitsAdapter.HabitsViewHolder>() {
     class HabitsViewHolder(
         private val binding: HabitItemBinding,
-        private val onClick: (Habit) -> Unit
+        private val habitCompletedButtonOnClick: (Habit) -> Unit,
+        private val editHabitOnClick: (Habit) -> Unit,
+        private val deleteHabitOnClick: (Habit) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         private var currentHabit: Habit? = null
-
-        init {
-            binding.root.setOnClickListener {
-                currentHabit?.let {
-                    onClick(it)
-                }
-            }
-        }
 
         fun bind(habit: Habit) {
             currentHabit = habit
             binding.habitName.text = habit.name
             binding.habitDescription.text = habit.description
-            val habitTypeImage = when (habit.type) {
-                HabitType.GOOD -> R.drawable.ic_good_24
-                HabitType.BAD -> R.drawable.ic_bad_24
-            }
-            binding.habitType.setImageDrawable(
-                (ContextCompat.getDrawable(
-                    binding.root.context,
-                    habitTypeImage
-                ))
-            )
             val periodicityTimes = binding.root.resources.getQuantityString(
                 R.plurals.periodicity_times,
                 habit.periodicityTimesPerDay.first,
@@ -59,11 +55,122 @@ class HabitsAdapter(
                 periodicityTimes,
                 periodicityDays
             )
-            binding.root.background = ColorDrawable(habit.color)
+            binding.habitInformation.background = ColorDrawable(habit.color)
             binding.habitCreatingDate.text = SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",
                 Locale.getDefault()
             ).format(habit.changingDate)
+            binding.completionsCount.text = binding.root.resources.getString(
+                R.string.completions_count,
+                habit.completionsCount.toString(),
+                habit.periodicityTimesPerDay.first.toString()
+            )
+
+            binding.habitInformation.setOnClickListener {
+                binding.progress.apply {
+                    visibility = if (visibility == View.GONE) View.VISIBLE else View.GONE
+                }
+            }
+            binding.habitCompletedButton.setOnClickListener { habitCompletedButtonOnClick(habit) }
+            binding.habitOptions.setOnClickListener { view ->
+                val p = PopupMenu(binding.root.context, view)
+                p.inflate(R.menu.habit_options_menu)
+                p.setOnMenuItemClickListener {
+                    if (it.itemId == R.id.edit_habit)
+                        editHabitOnClick(habit)
+                    if (it.itemId == R.id.delete_habit)
+                        deleteHabitOnClick(habit)
+                    true
+                }
+                p.show()
+            }
+            drawLineChart(habit)
+        }
+
+        private fun drawLineChart(habit: Habit) {
+            val max = habit.previousPeriodToCompletionsCount.size + 2
+
+            val g = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return value.roundToInt().toString()
+                }
+            }
+
+            val dataSets = ArrayList<ILineDataSet>()
+            val completedTimes = ArrayList<Entry>()
+            var i = 0
+            habit.previousPeriodToCompletionsCount.forEach { (periodicity, count) ->
+                completedTimes.add(Entry(i.toFloat(), count.toFloat()))
+                i++
+            }
+            completedTimes.add(Entry(i.toFloat(), habit.completionsCount.toFloat()))
+            val lineDataSet = LineDataSet(completedTimes, "количество раз")
+            lineDataSet.lineWidth = 4f
+            lineDataSet.circleRadius = 5f
+            lineDataSet.color = habit.color
+            lineDataSet.setCircleColor(habit.color)
+            lineDataSet.valueFormatter = g
+            dataSets.add(lineDataSet)
+
+            val minimum = ArrayList<Entry>()
+            minimum.add(Entry(0f, habit.periodicityTimesPerDay.first.toFloat()))
+            minimum.add(Entry(max.toFloat(), habit.periodicityTimesPerDay.first.toFloat()))
+            val lds2 =
+                LineDataSet(minimum, if (habit.type == HabitType.GOOD) "минимум" else "максимум")
+            lds2.lineWidth = 4f
+            lds2.circleRadius = 5f
+            val color = if (habit.type == HabitType.GOOD) Color.GREEN else Color.RED
+            lds2.color = color
+            lds2.setCircleColor(color)
+            lds2.valueFormatter = g
+            dataSets.add(lds2)
+
+            val j = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    val index = value.toInt()
+                    if (index > habit.previousPeriodToCompletionsCount.size + 1) {
+                        return ""
+                    }
+                    var o = 0
+                    val dateFormat = SimpleDateFormat(
+                        "dd.MM.yy",
+                        Locale.getDefault()
+                    )
+                    var start = habit.currentPeriod.first
+                    var end = habit.currentPeriod.second
+                    habit.previousPeriodToCompletionsCount.forEach {
+                        if (index == o) {
+                            start = it.key.first
+                            end = it.key.second
+                            return@forEach
+                        }
+                        o++
+                    }
+                    return if (start == end) dateFormat.format(start) else "${
+                        dateFormat.format(
+                            start
+                        )
+                    }-${dateFormat.format(end)}"
+                }
+            }
+
+            val data = LineData(dataSets)
+            binding.progress.data = data
+
+            binding.progress.axisLeft.valueFormatter = g
+            binding.progress.axisRight.valueFormatter = g
+            binding.progress.xAxis.valueFormatter = j
+
+            binding.progress.xAxis.setDrawGridLines(false)
+            binding.progress.axisRight.setDrawGridLines(false)
+            binding.progress.axisLeft.setDrawGridLines(false)
+            binding.progress.axisRight.setDrawLabels(false)
+            binding.progress.axisLeft.setDrawLabels(false)
+
+            binding.progress.xAxis.position = XAxis.XAxisPosition.BOTTOM
+
+            binding.progress.description.isEnabled = false
+            binding.progress.xAxis.labelCount = habit.previousPeriodToCompletionsCount.size + 1
         }
     }
 
@@ -71,7 +178,12 @@ class HabitsAdapter(
 
         val binding =
             HabitItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return HabitsViewHolder(binding, onClick)
+        return HabitsViewHolder(
+            binding,
+            habitCompletedButtonOnClick,
+            editHabitOnClick,
+            deleteHabitOnClick
+        )
     }
 
     override fun onBindViewHolder(holder: HabitsViewHolder, position: Int) {

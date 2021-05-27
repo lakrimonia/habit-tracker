@@ -6,28 +6,25 @@ import android.view.MenuItem
 import android.widget.ImageView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
-import com.bumptech.glide.annotation.GlideModule
-import com.bumptech.glide.module.AppGlideModule
 import com.example.habittracker.databinding.ActivityMainBinding
-import com.example.habittracker.databinding.NavHeaderMainBinding
 import com.example.habittracker.habitcreatingoredititng.HabitCreatingOrEditingFragment
+import com.example.habittracker.habitcreatingoredititng.OnBackPressedListener
 import com.example.habittracker.mainpage.MainPageFragment
-import com.example.habittracker.model.HabitRepository
 import com.google.android.material.navigation.NavigationView
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
 class MainActivity : AppCompatActivity(), MainActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
+    private val habitCreateOrEditingTag = "create or editing"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
@@ -52,16 +49,16 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         setAvatar()
     }
 
-    private fun setAvatar(){
+    private fun setAvatar() {
         val imageView = binding.navView.getHeaderView(0).findViewById<ImageView>(R.id.avatar)
         val placeholder = CircularProgressDrawable(this)
-        placeholder.centerRadius=30f
-        placeholder.strokeWidth=5f
+        placeholder.centerRadius = 30f
+        placeholder.strokeWidth = 5f
         placeholder.start()
 
         Glide.with(this)
             .load("https://mem-baza.ru/_ph/1/2/990419753.jpg?1600930052")
-            .override(300,300)
+            .override(300, 300)
             .placeholder(placeholder)
             .error(R.drawable.ic_avatar_loading_error)
             .circleCrop()
@@ -93,16 +90,21 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         if (supportFragmentManager.backStackEntryCount > 0) {
+            (supportFragmentManager.findFragmentByTag(habitCreateOrEditingTag) as OnBackPressedListener).onBackPressed()
             returnToMainPage()
-            HabitRepository.setHabitToEdit(null)
+//            HabitRepository.setHabitToEdit(null)
         } else
             super.onBackPressed()
     }
 
     override fun addHabit() {
         supportFragmentManager.commit {
-            replace(R.id.fragment_container, HabitCreatingOrEditingFragment())
-            addToBackStack(null)
+            replace(
+                R.id.fragment_container,
+                HabitCreatingOrEditingFragment(),
+                habitCreateOrEditingTag
+            )
+            addToBackStack("null")
         }
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         drawerToggle.isDrawerIndicatorEnabled = false
@@ -110,7 +112,11 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
 
     override fun editHabit() {
         supportFragmentManager.commit {
-            replace(R.id.fragment_container, HabitCreatingOrEditingFragment())
+            replace(
+                R.id.fragment_container,
+                HabitCreatingOrEditingFragment(),
+                habitCreateOrEditingTag
+            )
             addToBackStack(null)
         }
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)

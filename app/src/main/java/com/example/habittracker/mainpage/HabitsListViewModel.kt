@@ -1,12 +1,24 @@
 package com.example.habittracker.mainpage
 
 import androidx.lifecycle.*
+import com.example.data.HabitRepository
+import com.example.domain.*
+import com.example.domain.usecases.EditHabitUseCase
 import com.example.habittracker.Event
-import com.example.habittracker.model.Habit
-import com.example.habittracker.model.HabitRepository
-import com.example.habittracker.model.HabitType
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class HabitsListViewModel(private val repository: HabitRepository) : ViewModel() {
+@Singleton
+class HabitsListViewModel @Inject constructor(
+    private val getAllHabitsUseCase: GetAllHabitsUseCase,
+    private val deleteHabitUseCase: DeleteHabitUseCase,
+    private val filterAndSortHabitsUseCase: FilterAndSortHabitsUseCase,
+    private val markHabitAsCompletedUseCase: MarkHabitAsCompletedUseCase,
+    private val editHabitUseCase: EditHabitUseCase
+) :
+    ViewModel() {
     val mediatorLiveData: MediatorLiveData<List<Habit>> by lazy {
         MediatorLiveData()
     }
@@ -31,6 +43,10 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         MutableLiveData<Event<Habit>>()
     }
     val startToEditHabit: LiveData<Event<Habit>> = mutableStartToEditHabit
+    private val mutableHabitMarkedAsCompleted by lazy {
+        MutableLiveData<Event<Habit>>()
+    }
+    val habitMarkedAsCompleted: LiveData<Event<Habit>> = mutableHabitMarkedAsCompleted
 
     private var sortedHabits: List<Habit>? = null
     private var filteredByNameHabits: List<Habit>? = null
@@ -40,23 +56,21 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         mutableListOf()
     }
 
+    private var notFilteredGoodHabits: List<Habit> = listOf()
+    private var notFilteredBadHabits: List<Habit> = listOf()
+
     init {
         mutableGoodHabits.value = mutableListOf()
         mutableBadHabits.value = mutableListOf()
-        mediatorLiveData.addSource(repository.allHabits) {
-            changeList(mutableGoodHabits, it.filter { h -> h.type == HabitType.GOOD })
-            changeList(mutableBadHabits, it.filter { h -> h.type == HabitType.BAD })
-            colors.clear()
-            sortedHabits = it
-            filteredByNameHabits = it
-            filteredByColorHabits = it
-            mutableResetFilters.value = Event(1)
+        viewModelScope.launch {
+            val allHabits = getAllHabitsUseCase.getAllHabits().asLiveData()
+            mediatorLiveData.addSource(allHabits) {
+                notFilteredGoodHabits = it.filter { h -> h.type == HabitType.GOOD }
+                changeList(mutableGoodHabits, notFilteredGoodHabits)
+                notFilteredBadHabits = it.filter { h -> h.type == HabitType.BAD }
+                changeList(mutableBadHabits, notFilteredBadHabits)
+            }
         }
-    }
-
-    fun clickOnHabitItem(habit: Habit) {
-        HabitRepository.setHabitToEdit(habit)
-        mutableStartToEditHabit.value = Event(habit)
     }
 
     fun clickOnFab() {
@@ -69,95 +83,98 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
         habits.value = habits.value
     }
 
+    private fun unionSortingAndFilteringResult(): Collection<Habit> {
+        var result = sortedHabits ?: filteredByNameHabits ?: filteredByColorHabits ?: setOf()
+        sortedHabits?.let { result = result.intersect(it) }
+        filteredByNameHabits?.let { result = result.intersect(it) }
+        filteredByColorHabits?.let { result = result.intersect(it) }
+        return result
+    }
+
     fun sortHabitsByPriorityAscending() {
-        sortedHabits = sortedHabits?.sortedBy { it.priority }
-        changeList(mutableGoodHabits, sortedHabits!!.intersect(mutableGoodHabits.value!!))
-        changeList(mutableBadHabits, sortedHabits!!.intersect(mutableBadHabits.value!!))
-    }
-
-    fun sortHabitsByPriorityDescending() {
-        sortedHabits = sortedHabits?.sortedByDescending { it.priority }
-        changeList(mutableGoodHabits, sortedHabits!!.intersect(mutableGoodHabits.value!!))
-        changeList(mutableBadHabits, sortedHabits!!.intersect(mutableBadHabits.value!!))
-    }
-
-    fun sortHabitsByNameAscending() {
-        sortedHabits = sortedHabits?.sortedBy { it.name }
-        changeList(mutableGoodHabits, sortedHabits!!.intersect(mutableGoodHabits.value!!))
-        changeList(mutableBadHabits, sortedHabits!!.intersect(mutableBadHabits.value!!))
-    }
-
-    fun sortHabitsByNameDescending() {
-        sortedHabits = sortedHabits?.sortedByDescending { it.name }
-        changeList(mutableGoodHabits, sortedHabits!!.intersect(mutableGoodHabits.value!!))
-        changeList(mutableBadHabits, sortedHabits!!.intersect(mutableBadHabits.value!!))
-    }
-
-    fun sortHabitsByChangingDateAscending() {
-        sortedHabits = sortedHabits?.sortedBy { it.changingDate }
-        changeList(mutableGoodHabits, sortedHabits!!.intersect(mutableGoodHabits.value!!))
-        changeList(mutableBadHabits, sortedHabits!!.intersect(mutableBadHabits.value!!))
-    }
-
-    fun sortHabitsByChangingDateDescending() {
-        sortedHabits = sortedHabits?.sortedByDescending { it.changingDate }
-        changeList(mutableGoodHabits, sortedHabits!!.intersect(mutableGoodHabits.value!!))
-        changeList(mutableBadHabits, sortedHabits!!.intersect(mutableBadHabits.value!!))
-    }
-
-    fun findByName(name: CharSequence) {
-        repository.allHabits.value?.let {
-            filteredByNameHabits = it.filter { h -> h.name.startsWith(name, true) }
-            changeList(
-                mutableGoodHabits,
-                sortedHabits?.intersect(it.filter { h -> h.type == HabitType.GOOD })
-                    ?.intersect(filteredByColorHabits!!)?.intersect(filteredByNameHabits!!)!!
-            )
-            changeList(
-                mutableBadHabits,
-                sortedHabits?.intersect(it.filter { h -> h.type == HabitType.BAD })
-                    ?.intersect(filteredByColorHabits!!)?.intersect(filteredByNameHabits!!)!!
-            )
+        viewModelScope.launch {
+            sortedHabits = filterAndSortHabitsUseCase.getHabitsSortedByPriorityAscending()
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
         }
     }
 
+    fun sortHabitsByPriorityDescending() {
+        viewModelScope.launch {
+            sortedHabits = filterAndSortHabitsUseCase.getHabitsSortedByPriorityDescending()
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
+        }
+    }
+
+    fun sortHabitsByNameAscending() {
+        viewModelScope.launch {
+            sortedHabits = filterAndSortHabitsUseCase.getHabitsSortedByNameAscending()
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
+        }
+    }
+
+    fun sortHabitsByNameDescending() {
+        viewModelScope.launch {
+            sortedHabits = filterAndSortHabitsUseCase.getHabitsSortedByNameDescending()
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
+        }
+    }
+
+    fun sortHabitsByChangingDateAscending() {
+        viewModelScope.launch {
+            sortedHabits = filterAndSortHabitsUseCase.getHabitsSortedByChangingDateAscending()
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
+        }
+    }
+
+    fun sortHabitsByChangingDateDescending() {
+        viewModelScope.launch {
+            sortedHabits = filterAndSortHabitsUseCase.getHabitsSortedByChangingDateDescending()
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
+        }
+    }
+
+    fun findByName(name: CharSequence) {
+        viewModelScope.launch {
+            filteredByNameHabits =
+                filterAndSortHabitsUseCase.getHabitsFilteredByName(name)
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
+        }
+    }
+
+
     fun findByColor(color: Int) {
         colors.add(color)
-        repository.allHabits.value?.let { allHabits ->
-            filteredByColorHabits = allHabits.filter { colors.contains(it.color) }
-            changeList(
-                mutableGoodHabits,
-                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.GOOD })!!
-                    .intersect(filteredByNameHabits!!)
-                    .intersect(filteredByColorHabits!!)
-            )
-            changeList(
-                mutableBadHabits,
-                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.BAD })!!
-                    .intersect(filteredByNameHabits!!)
-                    .intersect(filteredByColorHabits!!)
-            )
+        viewModelScope.launch {
+            filteredByColorHabits =
+                filterAndSortHabitsUseCase.getHabitsFilteredByColor(colors)
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
         }
     }
 
     fun removeColor(color: Int) {
         colors.remove(color)
-        repository.allHabits.value?.let { allHabits ->
-            filteredByColorHabits = if (colors.isEmpty()) {
-                allHabits
-            } else {
-                allHabits.filter { colors.contains(it.color) }
-            }
-            changeList(
-                mutableGoodHabits,
-                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.GOOD })!!
-                    .intersect(filteredByNameHabits!!).intersect(filteredByColorHabits!!)
-            )
-            changeList(
-                mutableBadHabits,
-                sortedHabits?.intersect(allHabits.filter { h -> h.type == HabitType.BAD })!!
-                    .intersect(filteredByNameHabits!!).intersect(filteredByColorHabits!!)
-            )
+        viewModelScope.launch {
+            filteredByColorHabits =
+                filterAndSortHabitsUseCase.getHabitsFilteredByColor(colors)
+            val union = unionSortingAndFilteringResult()
+            changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
+            changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })
         }
     }
 
@@ -168,12 +185,30 @@ class HabitsListViewModel(private val repository: HabitRepository) : ViewModel()
 
     private fun resetFilters() {
         colors.clear()
-        repository.allHabits.value?.let {
-            sortedHabits = it
-            filteredByNameHabits = it
-            filteredByColorHabits = it
-            changeList(mutableGoodHabits, it.filter { h -> h.type == HabitType.GOOD })
-            changeList(mutableBadHabits, it.filter { h -> h.type == HabitType.BAD })
+        sortedHabits = null
+        filteredByNameHabits = null
+        filteredByColorHabits = null
+        changeList(mutableGoodHabits, notFilteredGoodHabits)
+        changeList(mutableBadHabits, notFilteredBadHabits)
+    }
+
+    fun deleteHabitOnClick(habit: Habit) {
+        viewModelScope.launch {
+            deleteHabitUseCase.deleteHabit(habit)
+        }
+    }
+
+    fun editHabitOnClick(habit: Habit) {
+        viewModelScope.launch {
+            editHabitUseCase.editHabit(habit)
+            mutableStartToEditHabit.value = Event(habit)
+        }
+    }
+
+    fun markHabitAsCompletedOnClick(habit: Habit) {
+        viewModelScope.launch {
+            markHabitAsCompletedUseCase.markHabitAsCompleted(habit)
+            mutableHabitMarkedAsCompleted.value = Event(habit)
         }
     }
 }

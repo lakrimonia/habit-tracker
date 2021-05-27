@@ -7,20 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.example.habittracker.HabitTrackerApplication
+import com.example.habittracker.di.HabitsListComponent
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentMainPageBinding
-import com.example.habittracker.model.HabitDatabase
-import com.example.habittracker.model.HabitRepository
 import com.google.android.material.tabs.TabLayoutMediator
+import javax.inject.Inject
 
 class MainPageFragment : Fragment() {
     private var _binding: FragmentMainPageBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
-    private lateinit var viewModel: HabitsListViewModel
+
+    private lateinit var habitsListComponent: HabitsListComponent
+
+    @Inject
+    lateinit var viewModel: HabitsListViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -31,15 +35,11 @@ class MainPageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            HabitsListViewModelFactory(
-                HabitRepository(
-                    HabitDatabase.getDatabase(requireContext()).habitDao()
-                )
-            )
-        ).get(HabitsListViewModel::class.java)
-
+        habitsListComponent =
+            (requireActivity().application as HabitTrackerApplication).applicationComponent
+                .habitsListComponent()
+                .create()
+        habitsListComponent.inject(this)
         _binding = FragmentMainPageBinding.inflate(inflater, container, false)
         binding.viewPager.adapter = HabitsListFragmentAdapter(activity as AppCompatActivity)
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL

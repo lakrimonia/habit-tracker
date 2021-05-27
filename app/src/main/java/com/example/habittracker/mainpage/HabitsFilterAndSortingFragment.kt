@@ -10,31 +10,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import com.example.habittracker.ColorPicker
+import com.example.habittracker.HabitTrackerApplication
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitsFilterAndSortingBinding
-import com.example.habittracker.model.HabitDatabase
-import com.example.habittracker.model.HabitRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import javax.inject.Inject
 
 class HabitsFilterAndSortingFragment : Fragment() {
     private var _binding: FragmentHabitsFilterAndSortingBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewModel: HabitsListViewModel
+
+    @Inject
+    lateinit var viewModel: HabitsListViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            HabitsListViewModelFactory(
-                HabitRepository(
-                    HabitDatabase.getDatabase(requireContext()).habitDao()
-                )
-            )
-        ).get(HabitsListViewModel::class.java)
-
+        val habitsListComponent =
+            (requireActivity().application as HabitTrackerApplication).applicationComponent
+                .habitsListComponent()
+                .create()
+        habitsListComponent.inject(this)
         _binding = FragmentHabitsFilterAndSortingBinding.inflate(inflater, container, false)
         binding.bottomSheetTitle.setOnClickListener {
             val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
@@ -44,21 +42,33 @@ class HabitsFilterAndSortingFragment : Fragment() {
         }
         binding.sortByPriorityFromLowToHigh.setOnClickListener {
             viewModel.sortHabitsByPriorityAscending()
+            binding.sortByDateButtons.clearCheck()
+            binding.sortByNameButtons.clearCheck()
         }
         binding.sortByPriorityFromHighToLow.setOnClickListener {
             viewModel.sortHabitsByPriorityDescending()
+            binding.sortByDateButtons.clearCheck()
+            binding.sortByNameButtons.clearCheck()
         }
         binding.sortByNameFromLowToHigh.setOnClickListener {
             viewModel.sortHabitsByNameAscending()
+            binding.sortByDateButtons.clearCheck()
+            binding.sortByPriorityButtons.clearCheck()
         }
         binding.sortByNameFromHighToLow.setOnClickListener {
             viewModel.sortHabitsByNameDescending()
+            binding.sortByDateButtons.clearCheck()
+            binding.sortByPriorityButtons.clearCheck()
         }
         binding.sortByDateFromLowToHigh.setOnClickListener {
             viewModel.sortHabitsByChangingDateAscending()
+            binding.sortByNameButtons.clearCheck()
+            binding.sortByPriorityButtons.clearCheck()
         }
         binding.sortByDateFromHighToLow.setOnClickListener {
             viewModel.sortHabitsByChangingDateDescending()
+            binding.sortByNameButtons.clearCheck()
+            binding.sortByPriorityButtons.clearCheck()
         }
         binding.findByName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

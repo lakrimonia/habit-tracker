@@ -1,13 +1,26 @@
 package com.example.habittracker.habitcreatingoredititng
 
 import androidx.lifecycle.*
+import com.example.data.HabitRepository
+import com.example.domain.Habit
+import com.example.domain.HabitPriority
+import com.example.domain.HabitType
+import com.example.domain.InsertHabitUseCase
+import com.example.domain.usecases.GetHabitToEditUseCase
 import com.example.habittracker.Event
-import com.example.habittracker.model.*
 import kotlinx.coroutines.*
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.flow.collect
 
-class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) : ViewModel(), CoroutineScope {
+@Singleton
+class HabitCreatingOrEditingViewModel @Inject constructor(
+    private val insertHabitUseCase: InsertHabitUseCase,
+    private val getHabitToEditUseCase: GetHabitToEditUseCase
+) :
+    ViewModel() {
     private val mutableName by lazy {
         MutableLiveData<String>()
     }
@@ -46,7 +59,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private val defaultPriority = HabitPriority.HIGH
     private val defaultType = HabitType.GOOD
 
-    private var habitToEditId: String? = null
     private var habitName: String = ""
     private var habitDescription: String = ""
     private var habitPriority: HabitPriority = defaultPriority
@@ -54,6 +66,9 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     private var habitPeriodicityTimes: String = ""
     private var habitPeriodicityDays: String = ""
     private var habitColor: String = ""
+
+    private var habit: Habit? = null
+
 
     private val mutableNameNotEntered by lazy {
         MutableLiveData<Boolean>()
@@ -72,17 +87,18 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         MediatorLiveData()
     }
 
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job + CoroutineExceptionHandler { _, e -> throw e }
-
     init {
-        mediatorLiveData.addSource(HabitRepository.HABIT_TO_EDIT) {
-            if (it == null)
-                clearFields()
-            else
-                editHabit(it)
+        viewModelScope.launch {
+            getHabitToEditUseCase.getHabitToEdit().collect {
+                if (it == null)
+                    clearFields()
+                else {
+                    editHabit(it)
+                    habit = it
+                }
+            }
         }
+
     }
 
     fun setName(name: String) {
@@ -135,7 +151,6 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
     }
 
     private fun editHabit(habit: Habit) {
-        habitToEditId = habit.id
         habitName = habit.name
         habitDescription = habit.description
         habitPriority = habit.priority
@@ -146,8 +161,8 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
         setValues()
     }
 
-    private fun clearFields() {
-        habitToEditId = null
+    fun clearFields() {
+        habit = null
         habitName = ""
         habitDescription = ""
         habitPriority = defaultPriority
@@ -166,6 +181,29 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             return
         }
         if (habitDescription == "") habitDescription = defaultDescription
+        habit?.let {
+            val habit = Habit(
+                habitName,
+                habitDescription,
+                habitPriority,
+                habitType,
+                habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
+                habitColor.toInt(),
+                Calendar.getInstance().time.time,
+                it.previousPeriodToCompletionsCount,
+                it.currentPeriod,
+                it.completionsCount,
+                it.id
+            )
+            save(habit)
+            mutableSaveChanges.value = Event(0)
+            clearFields()
+            return
+        }
+        val c = Calendar.getInstance()
+        val now = c.time
+        c.add(Calendar.DATE, habitPeriodicityDays.toInt())
+        val end = c.time
         val habit = Habit(
             habitName,
             habitDescription,
@@ -173,15 +211,19 @@ class HabitCreatingOrEditingViewModel(private val repository: HabitRepository) :
             habitType,
             habitPeriodicityTimes.toInt() to habitPeriodicityDays.toInt(),
             habitColor.toInt(),
-            Calendar.getInstance().time.time,
-            habitToEditId ?: ""
+            now.time,
+            mutableMapOf(),
+            now to end,
+            0,
+            ""
         )
         save(habit)
         mutableSaveChanges.value = Event(0)
+        clearFields()
     }
 
     private fun save(habit: Habit) =
-        launch {
-            repository.insert(habit)
+        viewModelScope.launch {
+            insertHabitUseCase.insertHabit(habit)
         }
 }

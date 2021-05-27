@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
-        android:text="Сортировать по приоритету"
+        android:text="@string/sort_by_priority_field_title"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/sort_by_name_field"
         app:layout_constraintTop_toBottomOf="@+id/find_by_name" />
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Сортировать по названию"
+        android:text="@string/sort_by_name_field_title"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/sort_by_date_field"
         app:layout_constraintTop_toBottomOf="@+id/sort_by_priority_field" />
@@ -44,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="Сортировать по дате создания"
+        android:text="@string/sort_by_changing_date_field_title"
         android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@+id/sort_by_name_field" />
 
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
-        android:hint="Поиск..."
+        android:hint="@string/search_by_name_field"
         android:inputType="text"
         android:maxLines="1"
         android:textSize="14sp"

@@ -6,13 +6,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import android.widget.Toast
+import com.example.domain.Habit
+import com.example.domain.HabitType
+import com.example.habittracker.HabitTrackerApplication
 import com.example.habittracker.MainActivityCallback
+import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitsListBinding
-import com.example.habittracker.model.Habit
-import com.example.habittracker.model.HabitDatabase
-import com.example.habittracker.model.HabitRepository
-import com.example.habittracker.model.HabitType
+import javax.inject.Inject
 
 
 class HabitsListFragment : Fragment() {
@@ -31,7 +32,9 @@ class HabitsListFragment : Fragment() {
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
     private lateinit var habitType: HabitType
-    private lateinit var viewModel: HabitsListViewModel
+
+    @Inject
+    lateinit var viewModel: HabitsListViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -43,21 +46,18 @@ class HabitsListFragment : Fragment() {
         arguments?.getSerializable(HABIT_TYPE)?.let {
             habitType = it as HabitType
         }
-
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            HabitsListViewModelFactory(
-                HabitRepository(
-                    HabitDatabase.getDatabase(requireContext()).habitDao()
-                )
-            )
-        ).get(HabitsListViewModel::class.java)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val habitsListComponent =
+            (requireActivity().application as HabitTrackerApplication).applicationComponent
+                .habitsListComponent()
+                .create()
+        habitsListComponent.inject(this)
+
         _binding = FragmentHabitsListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -67,12 +67,20 @@ class HabitsListFragment : Fragment() {
         when (habitType) {
             HabitType.GOOD -> viewModel.goodHabits.observe(viewLifecycleOwner, { habits ->
                 if (binding.recyclerView.adapter == null)
-                    binding.recyclerView.adapter = HabitsAdapter(habits) { habitItemOnClick(it) }
+                    binding.recyclerView.adapter =
+                        HabitsAdapter(habits,
+                            { markHabitAsCompleted(it) },
+                            { editHabit(it) },
+                            { deleteHabit(it) })
                 binding.recyclerView.adapter?.notifyDataSetChanged()
             })
             HabitType.BAD -> viewModel.badHabits.observe(viewLifecycleOwner, { habits ->
                 if (binding.recyclerView.adapter == null)
-                    binding.recyclerView.adapter = HabitsAdapter(habits) { habitItemOnClick(it) }
+                    binding.recyclerView.adapter =
+                        HabitsAdapter(habits,
+                            { markHabitAsCompleted(it) },
+                            { editHabit(it) },
+                            { deleteHabit(it) })
                 binding.recyclerView.adapter?.notifyDataSetChanged()
             })
         }
@@ -82,9 +90,41 @@ class HabitsListFragment : Fragment() {
                 callback?.editHabit()
             }
         })
+
+        viewModel.habitMarkedAsCompleted.observe(viewLifecycleOwner, {
+            it.getContentIfNotHandled()?.let { habit ->
+                val text = when (habit.type) {
+                    HabitType.GOOD -> if (habit.completionsCount < habit.periodicityTimesPerDay.first) "Стоит выполнить ещё ${
+                        resources.getQuantityString(
+                            R.plurals.periodicity_times,
+                            habit.periodicityTimesPerDay.first - habit.completionsCount,
+                            habit.periodicityTimesPerDay.first - habit.completionsCount
+                        )
+                    }" else "You're breathtaking!"
+                    HabitType.BAD -> if (habit.completionsCount < habit.periodicityTimesPerDay.first) "Можете выполнить ещё ${
+                        resources.getQuantityString(
+                            R.plurals.periodicity_times,
+                            habit.periodicityTimesPerDay.first - habit.completionsCount,
+                            habit.periodicityTimesPerDay.first - habit.completionsCount
+                        )
+                    }" else "Хватит это делать!"
+                }
+                val toast = Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT)
+                toast.show()
+                binding.recyclerView.adapter?.notifyDataSetChanged()
+            }
+        })
     }
 
-    private fun habitItemOnClick(habit: Habit) {
-        viewModel.clickOnHabitItem(habit)
+    private fun markHabitAsCompleted(habit: Habit) {
+        viewModel.markHabitAsCompletedOnClick(habit)
+    }
+
+    private fun editHabit(habit: Habit) {
+        viewModel.editHabitOnClick(habit)
+    }
+
+    private fun deleteHabit(habit: Habit) {
+        viewModel.deleteHabitOnClick(habit)
     }
 }
