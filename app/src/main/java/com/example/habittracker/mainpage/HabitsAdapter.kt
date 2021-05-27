@@ -57,7 +57,7 @@ class HabitsAdapter(
             )
             binding.habitInformation.background = ColorDrawable(habit.color)
             binding.habitCreatingDate.text = SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss",
+                "yyyy-MM-dd",
                 Locale.getDefault()
             ).format(habit.changingDate)
             binding.completionsCount.text = binding.root.resources.getString(
@@ -90,7 +90,7 @@ class HabitsAdapter(
         private fun drawLineChart(habit: Habit) {
             val max = habit.previousPeriodToCompletionsCount.size + 2
 
-            val g = object : ValueFormatter() {
+            val valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     return value.roundToInt().toString()
                 }
@@ -98,8 +98,8 @@ class HabitsAdapter(
 
             val dataSets = ArrayList<ILineDataSet>()
             val completedTimes = ArrayList<Entry>()
-            var i = 0
-            habit.previousPeriodToCompletionsCount.forEach { (periodicity, count) ->
+            var i = 1
+            habit.previousPeriodToCompletionsCount.forEach { (_, count) ->
                 completedTimes.add(Entry(i.toFloat(), count.toFloat()))
                 i++
             }
@@ -109,7 +109,7 @@ class HabitsAdapter(
             lineDataSet.circleRadius = 5f
             lineDataSet.color = habit.color
             lineDataSet.setCircleColor(habit.color)
-            lineDataSet.valueFormatter = g
+            lineDataSet.valueFormatter = valueFormatter
             dataSets.add(lineDataSet)
 
             val minimum = ArrayList<Entry>()
@@ -122,13 +122,13 @@ class HabitsAdapter(
             val color = if (habit.type == HabitType.GOOD) Color.GREEN else Color.RED
             lds2.color = color
             lds2.setCircleColor(color)
-            lds2.valueFormatter = g
+            lds2.valueFormatter = valueFormatter
             dataSets.add(lds2)
 
-            val j = object : ValueFormatter() {
+            val xLabelsFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
-                    val index = value.toInt()
-                    if (index > habit.previousPeriodToCompletionsCount.size + 1) {
+                    val index = value.roundToInt() - 1
+                    if (index == -1 || index > habit.previousPeriodToCompletionsCount.size) {
                         return ""
                     }
                     var o = 0
@@ -138,13 +138,15 @@ class HabitsAdapter(
                     )
                     var start = habit.currentPeriod.first
                     var end = habit.currentPeriod.second
-                    habit.previousPeriodToCompletionsCount.forEach {
-                        if (index == o) {
-                            start = it.key.first
-                            end = it.key.second
-                            return@forEach
+                    run search@{
+                        habit.previousPeriodToCompletionsCount.forEach {
+                            if (index == o) {
+                                start = it.key.first
+                                end = it.key.second
+                                return@search
+                            }
+                            o++
                         }
-                        o++
                     }
                     return if (start == end) dateFormat.format(start) else "${
                         dateFormat.format(
@@ -157,9 +159,9 @@ class HabitsAdapter(
             val data = LineData(dataSets)
             binding.progress.data = data
 
-            binding.progress.axisLeft.valueFormatter = g
-            binding.progress.axisRight.valueFormatter = g
-            binding.progress.xAxis.valueFormatter = j
+            binding.progress.axisLeft.valueFormatter = valueFormatter
+            binding.progress.axisRight.valueFormatter = valueFormatter
+            binding.progress.xAxis.valueFormatter = xLabelsFormatter
 
             binding.progress.xAxis.setDrawGridLines(false)
             binding.progress.axisRight.setDrawGridLines(false)
@@ -171,6 +173,7 @@ class HabitsAdapter(
 
             binding.progress.description.isEnabled = false
             binding.progress.xAxis.labelCount = habit.previousPeriodToCompletionsCount.size + 1
+            binding.progress.xAxis.labelRotationAngle = -45f
         }
     }
 

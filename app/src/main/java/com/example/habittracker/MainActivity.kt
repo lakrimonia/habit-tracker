@@ -92,7 +92,6 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         if (supportFragmentManager.backStackEntryCount > 0) {
             (supportFragmentManager.findFragmentByTag(habitCreateOrEditingTag) as OnBackPressedListener).onBackPressed()
             returnToMainPage()
-//            HabitRepository.setHabitToEdit(null)
         } else
             super.onBackPressed()
     }
