@@ -1,7 +1,6 @@
 package com.example.data
 
 import com.example.domain.Habit
-import com.example.domain.HabitUID
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HTTP
