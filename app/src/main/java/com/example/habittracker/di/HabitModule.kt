@@ -15,47 +15,85 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+//@Module
+//class UseCasesModule(private val repository: HabitsRepository){
+//    @Provides
+//    fun provideGetHabitToEditUseCase(): GetHabitToEditUseCase {
+//        return GetHabitToEditUseCase(repository)
+//    }
+//
+//    @Provides
+//    fun provideEditHabitUseCase(): EditHabitUseCase {
+//        return EditHabitUseCase(repository)
+//    }
+//
+//    @Provides
+//    fun provideMarkHabitAsCompletedUseCase(): MarkHabitAsCompletedUseCase {
+//        return MarkHabitAsCompletedUseCase(repository)
+//    }
+//
+//    @Provides
+//    fun provideFilterAndSortHabitUseCase(): FilterAndSortHabitsUseCase {
+//        return FilterAndSortHabitsUseCase(repository)
+//    }
+//
+//    @Provides
+//    fun provideDeleteHabitUseCase(): DeleteHabitUseCase {
+//        return DeleteHabitUseCase(repository)
+//    }
+//
+//    @Provides
+//    fun provideInsertHabitUseCase(): InsertHabitUseCase {
+//        return InsertHabitUseCase(repository)
+//    }
+//
+//    @Provides
+//    fun provideGetAllHabitsUseCase(): GetAllHabitsUseCase {
+//        return GetAllHabitsUseCase(repository)
+//    }
+//}
+
 @Module
-class HabitModule {
+class HabitModule(private val repository: HabitsRepository? = null) {
     @Provides
-    fun provideGetHabitToEditUseCase(repository: HabitRepository): GetHabitToEditUseCase {
+    fun provideGetHabitToEditUseCase(repository: HabitsRepository): GetHabitToEditUseCase {
         return GetHabitToEditUseCase(repository)
     }
 
     @Provides
-    fun provideEditHabitUseCase(repository: HabitRepository): EditHabitUseCase {
+    fun provideEditHabitUseCase(repository: HabitsRepository): EditHabitUseCase {
         return EditHabitUseCase(repository)
     }
 
     @Provides
-    fun provideMarkHabitAsCompletedUseCase(repository: HabitRepository): MarkHabitAsCompletedUseCase {
+    fun provideMarkHabitAsCompletedUseCase(repository: HabitsRepository): MarkHabitAsCompletedUseCase {
         return MarkHabitAsCompletedUseCase(repository)
     }
 
     @Provides
-    fun provideFilterAndSortHabitUseCase(repository: HabitRepository): FilterAndSortHabitsUseCase {
+    fun provideFilterAndSortHabitUseCase(repository: HabitsRepository): FilterAndSortHabitsUseCase {
         return FilterAndSortHabitsUseCase(repository)
     }
 
     @Provides
-    fun provideDeleteHabitUseCase(repository: HabitRepository): DeleteHabitUseCase {
+    fun provideDeleteHabitUseCase(repository: HabitsRepository): DeleteHabitUseCase {
         return DeleteHabitUseCase(repository)
     }
 
     @Provides
-    fun provideInsertHabitUseCase(repository: HabitRepository): InsertHabitUseCase {
+    fun provideInsertHabitUseCase(repository: HabitsRepository): InsertHabitUseCase {
         return InsertHabitUseCase(repository)
     }
 
     @Provides
-    fun provideGetAllHabitsUseCase(repository: HabitRepository): GetAllHabitsUseCase {
+    fun provideGetAllHabitsUseCase(repository: HabitsRepository): GetAllHabitsUseCase {
         return GetAllHabitsUseCase(repository)
     }
 
     @Singleton
     @Provides
-    fun provideHabitRepository(habitDao: HabitDao, habitApi: HabitApi): HabitRepository {
-        return HabitRepository(habitDao, habitApi)
+    fun provideHabitRepository(habitDao: HabitDao, habitApi: HabitApi): HabitsRepository {
+        return repository ?: HabitRepository(habitDao, habitApi)
     }
 
     @Provides

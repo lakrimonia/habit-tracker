@@ -56,7 +56,7 @@ class HabitsAdapter(
                 periodicityDays
             )
             binding.habitInformation.background = ColorDrawable(habit.color)
-            binding.habitCreatingDate.text = SimpleDateFormat(
+            binding.habitChangingDate.text = SimpleDateFormat(
                 "yyyy-MM-dd",
                 Locale.getDefault()
             ).format(habit.changingDate)

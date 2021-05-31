@@ -12,7 +12,7 @@
         android:layout_height="60dp"
         android:background="@color/purple_500"
         android:gravity="center"
-        android:text="Фильтр и сортировка"
+        android:text="@string/filter_and_sorting_bottom_sheet_title"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"

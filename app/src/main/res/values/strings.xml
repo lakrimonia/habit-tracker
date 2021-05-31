@@ -46,4 +46,5 @@
     <string name="sort_by_name_field_title">Сортировать по названию</string>
     <string name="sort_by_changing_date_field_title">Сортировать по дате изменения</string>
     <string name="search_by_name_field">Поиск по названию…</string>
+    <string name="filter_and_sorting_bottom_sheet_title">Фильтр и сортировка</string>
 </resources>

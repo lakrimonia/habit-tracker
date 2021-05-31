@@ -8,11 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
-import com.example.habittracker.HabitTrackerApplication
-import com.example.habittracker.di.HabitsListComponent
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentMainPageBinding
+import com.example.habittracker.ApplicationWithDaggerComponent
 import com.google.android.material.tabs.TabLayoutMediator
 import javax.inject.Inject
 
@@ -20,8 +19,6 @@ class MainPageFragment : Fragment() {
     private var _binding: FragmentMainPageBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
-
-    private lateinit var habitsListComponent: HabitsListComponent
 
     @Inject
     lateinit var viewModel: HabitsListViewModel
@@ -35,8 +32,8 @@ class MainPageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        habitsListComponent =
-            (requireActivity().application as HabitTrackerApplication).applicationComponent
+        val habitsListComponent =
+            (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
                 .habitsListComponent()
                 .create()
         habitsListComponent.inject(this)

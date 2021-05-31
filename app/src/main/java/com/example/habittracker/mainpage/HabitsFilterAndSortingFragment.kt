@@ -11,9 +11,9 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import com.example.habittracker.ColorPicker
-import com.example.habittracker.HabitTrackerApplication
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitsFilterAndSortingBinding
+import com.example.habittracker.ApplicationWithDaggerComponent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class HabitsFilterAndSortingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val habitsListComponent =
-            (requireActivity().application as HabitTrackerApplication).applicationComponent
+            (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
                 .habitsListComponent()
                 .create()
         habitsListComponent.inject(this)

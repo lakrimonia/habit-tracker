@@ -19,7 +19,7 @@ import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 import com.example.habittracker.ColorPicker
-import com.example.habittracker.HabitTrackerApplication
+import com.example.habittracker.ApplicationWithDaggerComponent
 import javax.inject.Inject
 
 class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
@@ -43,7 +43,7 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
         savedInstanceState: Bundle?
     ): View {
         val habitsListComponent =
-            (requireActivity().application as HabitTrackerApplication).applicationComponent
+            (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
                 .habitsListComponent()
                 .create()
         habitsListComponent.inject(this)
