@@ -61,6 +61,6 @@ class HabitRepository(private val habitDao: HabitDao, private val habitApi: Habi
         val doneDate = Calendar.getInstance().time.time
         habitApi.markHabitCompleted(HabitDone(doneDate, habit.id))
         habit.completionsCount++
-        habitDao.getHabitById(habit.id).completionsCount++
+        habitDao.update(HabitEntity.from(habit))
     }
 }
