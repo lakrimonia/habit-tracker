@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.example.domain.Habit
 import com.example.domain.HabitType
 import com.example.habittracker.MainActivityCallback
@@ -57,7 +58,6 @@ class HabitsListFragment : Fragment() {
                 .habitsListComponent()
                 .create()
         habitsListComponent.inject(this)
-
         _binding = FragmentHabitsListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -92,26 +92,9 @@ class HabitsListFragment : Fragment() {
         })
 
         viewModel.habitMarkedAsCompleted.observe(viewLifecycleOwner, {
-            it.getContentIfNotHandled()?.let { habit ->
-                val text = when (habit.type) {
-                    HabitType.GOOD -> if (habit.completionsCount < habit.periodicityTimesPerDay.first) "Стоит выполнить ещё ${
-                        resources.getQuantityString(
-                            R.plurals.periodicity_times,
-                            habit.periodicityTimesPerDay.first - habit.completionsCount,
-                            habit.periodicityTimesPerDay.first - habit.completionsCount
-                        )
-                    }" else "You're breathtaking!"
-                    HabitType.BAD -> if (habit.completionsCount < habit.periodicityTimesPerDay.first) "Можете выполнить ещё ${
-                        resources.getQuantityString(
-                            R.plurals.periodicity_times,
-                            habit.periodicityTimesPerDay.first - habit.completionsCount,
-                            habit.periodicityTimesPerDay.first - habit.completionsCount
-                        )
-                    }" else "Хватит это делать!"
-                }
+            it.getContentIfNotHandled()?.let { text ->
                 val toast = Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT)
                 toast.show()
-                binding.recyclerView.adapter?.notifyDataSetChanged()
             }
         })
     }

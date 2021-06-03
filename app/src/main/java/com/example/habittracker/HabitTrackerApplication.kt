@@ -4,7 +4,6 @@ import com.example.habittracker.di.*
 
 class HabitTrackerApplication : ApplicationWithDaggerComponent() {
     override fun onCreate() {
-
         super.onCreate()
         applicationComponent = DaggerApplicationComponent
             .builder()

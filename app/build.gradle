@@ -83,4 +83,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'com.kaspersky.android-components:kaspresso:1.2.0'
     androidTestImplementation 'com.kaspersky.android-components:kaspresso:1.2.1-SNAPSHOT'
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0'
+    testImplementation "org.mockito:mockito-core:3.9.0"
+    androidTestImplementation 'org.mockito:mockito-android:2.24.5'
 }

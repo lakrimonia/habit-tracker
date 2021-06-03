@@ -13,7 +13,6 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.example.habittracker.databinding.ActivityMainBinding
 import com.example.habittracker.habitcreatingoredititng.HabitCreatingOrEditingFragment
-import com.example.habittracker.habitcreatingoredititng.OnBackPressedListener
 import com.example.habittracker.mainpage.MainPageFragment
 import com.google.android.material.navigation.NavigationView
 
@@ -89,10 +88,9 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            (supportFragmentManager.findFragmentByTag(habitCreateOrEditingTag) as OnBackPressedListener).onBackPressed()
+        if (supportFragmentManager.backStackEntryCount > 0)
             returnToMainPage()
-        } else
+        else
             super.onBackPressed()
     }
 
@@ -103,7 +101,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
                 HabitCreatingOrEditingFragment(),
                 habitCreateOrEditingTag
             )
-            addToBackStack("null")
+            addToBackStack(null)
         }
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         drawerToggle.isDrawerIndicatorEnabled = false
@@ -130,9 +128,10 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.main_page)
-            supportFragmentManager.commit {
-                replace(R.id.fragment_container, MainPageFragment())
-            }
+            if (!supportFragmentManager.fragments.any { it is MainPageFragment })
+                supportFragmentManager.commit {
+                    replace(R.id.fragment_container, MainPageFragment())
+                }
         if (item.itemId == R.id.about_app)
             supportFragmentManager.commit {
                 replace(R.id.fragment_container, AboutAppFragment())

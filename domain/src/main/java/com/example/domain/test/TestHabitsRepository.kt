@@ -1,5 +1,7 @@
-package com.example.domain
+package com.example.domain.test
 
+import com.example.domain.Habit
+import com.example.domain.HabitsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -19,8 +19,7 @@ import kotlinx.coroutines.flow.collect
 class HabitCreatingOrEditingViewModel @Inject constructor(
     private val insertHabitUseCase: InsertHabitUseCase,
     private val getHabitToEditUseCase: GetHabitToEditUseCase
-) :
-    ViewModel() {
+) : ViewModel() {
     private val mutableName by lazy {
         MutableLiveData<String>()
     }

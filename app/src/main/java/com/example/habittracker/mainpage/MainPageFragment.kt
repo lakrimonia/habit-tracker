@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
@@ -38,7 +39,7 @@ class MainPageFragment : Fragment() {
                 .create()
         habitsListComponent.inject(this)
         _binding = FragmentMainPageBinding.inflate(inflater, container, false)
-        binding.viewPager.adapter = HabitsListFragmentAdapter(activity as AppCompatActivity)
+        binding.viewPager.adapter = HabitsListFragmentAdapter(this)
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             if (position == 0)

@@ -5,12 +5,14 @@ import com.example.data.HabitRepository
 import com.example.domain.*
 import com.example.domain.usecases.EditHabitUseCase
 import com.example.habittracker.Event
+import com.example.habittracker.R
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+//@MainPageScope
 class HabitsListViewModel @Inject constructor(
     private val getAllHabitsUseCase: GetAllHabitsUseCase,
     private val deleteHabitUseCase: DeleteHabitUseCase,
@@ -44,9 +46,9 @@ class HabitsListViewModel @Inject constructor(
     }
     val startToEditHabit: LiveData<Event<Habit>> = mutableStartToEditHabit
     private val mutableHabitMarkedAsCompleted by lazy {
-        MutableLiveData<Event<Habit>>()
+        MutableLiveData<Event<String>>()
     }
-    val habitMarkedAsCompleted: LiveData<Event<Habit>> = mutableHabitMarkedAsCompleted
+    val habitMarkedAsCompleted: LiveData<Event<String>> = mutableHabitMarkedAsCompleted
 
     private var sortedHabits: List<Habit>? = null
     private var filteredByNameHabits: List<Habit>? = null
@@ -208,7 +210,18 @@ class HabitsListViewModel @Inject constructor(
     fun markHabitAsCompletedOnClick(habit: Habit) {
         viewModelScope.launch {
             markHabitAsCompletedUseCase.markHabitAsCompleted(habit)
-            mutableHabitMarkedAsCompleted.value = Event(habit)
+            mutableGoodHabits.value = mutableGoodHabits.value
+            mutableBadHabits.value = mutableBadHabits.value
+            val a = habit.periodicityTimesPerDay.first - habit.completionsCount
+            val text = when (habit.type) {
+                HabitType.GOOD ->
+                    if (habit.completionsCount < habit.periodicityTimesPerDay.first) "Стоит выполнить ещё $a раз"
+                    else "You're breathtaking!"
+                HabitType.BAD ->
+                    if (habit.completionsCount < habit.periodicityTimesPerDay.first) "Можете выполнить ещё $a раз"
+                    else "Хватит это делать!"
+            }
+            mutableHabitMarkedAsCompleted.value = Event(text)
         }
     }
 }

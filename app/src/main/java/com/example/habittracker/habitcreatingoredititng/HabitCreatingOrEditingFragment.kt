@@ -13,25 +13,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
-import com.example.habittracker.MainActivityCallback
-import com.example.habittracker.R
+import com.example.habittracker.*
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
-import com.example.habittracker.ColorPicker
-import com.example.habittracker.ApplicationWithDaggerComponent
 import javax.inject.Inject
 
-class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
+class HabitCreatingOrEditingFragment : Fragment() {
     private var _binding: FragmentHabitCreatingOrEditingBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
+
     @Inject
     lateinit var viewModel: HabitCreatingOrEditingViewModel
-
-    override fun onBackPressed() {
-        viewModel.clearFields()
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -42,11 +38,11 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val habitsListComponent =
-            (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
-                .habitsListComponent()
-                .create()
-        habitsListComponent.inject(this)
+        (requireActivity().application as ApplicationWithDaggerComponent)
+            .applicationComponent
+            .habitsListComponent()
+            .create()
+            .inject(this)
         _binding = FragmentHabitCreatingOrEditingBinding.inflate(inflater, container, false)
         ColorPicker.create(requireContext(), resources, binding.colorsScroll) {
             val color = it?.background as ColorDrawable
@@ -263,5 +259,10 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
                 ViewCompat.setBackgroundTintList(it, colorStateList)
             }
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        viewModel.clearFields()
     }
 }

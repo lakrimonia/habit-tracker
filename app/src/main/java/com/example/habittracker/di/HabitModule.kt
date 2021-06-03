@@ -7,51 +7,15 @@ import com.example.domain.*
 import com.example.domain.usecases.EditHabitUseCase
 import com.example.domain.usecases.GetHabitToEditUseCase
 import com.google.gson.GsonBuilder
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.multibindings.IntoMap
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
-
-//@Module
-//class UseCasesModule(private val repository: HabitsRepository){
-//    @Provides
-//    fun provideGetHabitToEditUseCase(): GetHabitToEditUseCase {
-//        return GetHabitToEditUseCase(repository)
-//    }
-//
-//    @Provides
-//    fun provideEditHabitUseCase(): EditHabitUseCase {
-//        return EditHabitUseCase(repository)
-//    }
-//
-//    @Provides
-//    fun provideMarkHabitAsCompletedUseCase(): MarkHabitAsCompletedUseCase {
-//        return MarkHabitAsCompletedUseCase(repository)
-//    }
-//
-//    @Provides
-//    fun provideFilterAndSortHabitUseCase(): FilterAndSortHabitsUseCase {
-//        return FilterAndSortHabitsUseCase(repository)
-//    }
-//
-//    @Provides
-//    fun provideDeleteHabitUseCase(): DeleteHabitUseCase {
-//        return DeleteHabitUseCase(repository)
-//    }
-//
-//    @Provides
-//    fun provideInsertHabitUseCase(): InsertHabitUseCase {
-//        return InsertHabitUseCase(repository)
-//    }
-//
-//    @Provides
-//    fun provideGetAllHabitsUseCase(): GetAllHabitsUseCase {
-//        return GetAllHabitsUseCase(repository)
-//    }
-//}
 
 @Module
 class HabitModule(private val repository: HabitsRepository? = null) {

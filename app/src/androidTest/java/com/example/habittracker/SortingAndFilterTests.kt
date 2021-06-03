@@ -1,6 +1,8 @@
 package com.example.habittracker
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -10,6 +12,11 @@ class SortingAndFilterTests {
     var rule = ActivityScenarioRule(MainActivity::class.java)
 
     private val mainPageScreen = MainPageScreen()
+
+    @After
+    fun tearDown() {
+        mainPageScreen { resetFiltersButton { click() } }
+    }
 
     @Test
     fun sortingByPriorityAscendingWorksRightForGoodHabits() {
@@ -25,7 +32,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -43,7 +49,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -61,7 +66,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -79,7 +83,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -97,7 +100,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -115,7 +117,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -133,7 +134,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -151,7 +151,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -169,7 +168,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -187,7 +185,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -205,7 +202,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -223,7 +219,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -240,7 +235,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -256,7 +250,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -289,7 +282,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
@@ -305,7 +297,6 @@ class SortingAndFilterTests {
                     }
                 }
             }
-            resetFiltersButton { click() }
         }
     }
 
