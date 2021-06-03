@@ -3,6 +3,7 @@ package com.example.habittracker.habitcreatingoredititng
 import android.graphics.Color
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
+import com.example.domain.Habit
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
 import com.example.domain.InsertHabitUseCase
@@ -10,6 +11,8 @@ import com.example.domain.test.TestHabitsRepository
 import com.example.domain.usecases.GetHabitToEditUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -19,19 +22,21 @@ import org.junit.Test
 
 import org.junit.Assert.*
 import org.junit.Rule
+import java.util.*
 
 @ExperimentalCoroutinesApi
 class HabitCreatingOrEditingViewModelTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
+    private lateinit var repository: TestHabitsRepository
     private lateinit var viewModel: HabitCreatingOrEditingViewModel
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        val repository = TestHabitsRepository(mutableListOf())
+        repository = TestHabitsRepository(mutableListOf())
         viewModel = HabitCreatingOrEditingViewModel(
             InsertHabitUseCase(repository),
             GetHabitToEditUseCase(repository)
@@ -155,6 +160,7 @@ class HabitCreatingOrEditingViewModelTest {
         viewModel.saveChanges.value?.let {
             assertFalse(it.getContentIfNotHandled() == null)
         }
+        runBlocking { assertEquals(1, repository.getAll().first().size) }
     }
 
     @Test
@@ -189,6 +195,7 @@ class HabitCreatingOrEditingViewModelTest {
         viewModel.saveChanges.value?.let {
             assertFalse(it.getContentIfNotHandled() == null)
         }
+        runBlocking { assertEquals(1, repository.getAll().first().size) }
     }
 
     @Test
@@ -249,24 +256,50 @@ class HabitCreatingOrEditingViewModelTest {
         setName()
         setPeriodicityTimes()
         viewModel.periodicityDays.observeForever {}
-        viewModel.setPeriodicityTimes("0")
+        viewModel.setPeriodicityDays("0")
         viewModel.daysEqualsZero.observeForever {}
         viewModel.clickOnFab()
         assertFalse(viewModel.daysEqualsZero.value == null)
         viewModel.daysEqualsZero.value?.let {
             assertTrue(it)
         }
-        viewModel.setPeriodicityTimes("00")
+        viewModel.setPeriodicityDays("00")
         viewModel.clickOnFab()
         assertFalse(viewModel.daysEqualsZero.value == null)
         viewModel.daysEqualsZero.value?.let {
             assertTrue(it)
         }
-        viewModel.setPeriodicityTimes("000")
+        viewModel.setPeriodicityDays("000")
         viewModel.clickOnFab()
         assertFalse(viewModel.daysEqualsZero.value == null)
         viewModel.daysEqualsZero.value?.let {
             assertTrue(it)
+        }
+    }
+
+    @Test
+    fun editHabit() {
+        viewModel.name.observeForever{}
+        runBlocking {
+            repository.setHabitToEdit(
+                Habit(
+                    "Гулять",
+                    "1 км",
+                    HabitPriority.LOW,
+                    HabitType.GOOD,
+                    5 to 1,
+                    Color.RED,
+                    GregorianCalendar(2021, 5, 11).time.time,
+                    mutableMapOf(),
+                    GregorianCalendar(2021, 5, 12).time to GregorianCalendar(2021, 5, 12).time,
+                    4,
+                    "2"
+                )
+            )
+        }
+        assertFalse(viewModel.name.value==null)
+        viewModel.name.value?.let{
+            assertEquals("Гулять", it)
         }
     }
 }

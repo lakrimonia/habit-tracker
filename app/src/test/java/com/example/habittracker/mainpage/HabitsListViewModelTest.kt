@@ -320,9 +320,11 @@ class HabitsListViewModelTest {
         viewModel.markHabitAsCompletedOnClick(habits[0])
         assertFalse(viewModel.habitMarkedAsCompleted.value == null)
         viewModel.habitMarkedAsCompleted.value?.let {
-            assertFalse(it.getContentIfNotHandled() == null)
-            it.getContentIfNotHandled()?.let { message ->
-                assertEquals("Стоит выполнить ещё 1 раз", message)
+            val result = it.getContentIfNotHandled()
+            assertFalse(result == null)
+            result?.let { textToCompletionsCount ->
+                assertEquals("Стоит выполнить ещё ", textToCompletionsCount.first)
+                assertEquals(1, textToCompletionsCount.second)
             }
         }
     }
@@ -333,9 +335,11 @@ class HabitsListViewModelTest {
         viewModel.markHabitAsCompletedOnClick(habits[2])
         assertFalse(viewModel.habitMarkedAsCompleted.value == null)
         viewModel.habitMarkedAsCompleted.value?.let {
-            assertFalse(it.getContentIfNotHandled() == null)
-            it.getContentIfNotHandled()?.let { message ->
-                assertEquals("You're breathtaking!", message)
+            val result = it.getContentIfNotHandled()
+            assertFalse(result == null)
+            result?.let { textToCompletionsCount ->
+                assertEquals("You're breathtaking!", textToCompletionsCount.first)
+                assertTrue(textToCompletionsCount.second == null)
             }
         }
     }
@@ -346,9 +350,11 @@ class HabitsListViewModelTest {
         viewModel.markHabitAsCompletedOnClick(habits[1])
         assertFalse(viewModel.habitMarkedAsCompleted.value == null)
         viewModel.habitMarkedAsCompleted.value?.let {
-            assertFalse(it.getContentIfNotHandled() == null)
-            it.getContentIfNotHandled()?.let { message ->
-                assertEquals("You're breathtaking!", message)
+            val result = it.getContentIfNotHandled()
+            assertFalse(result == null)
+            result?.let { textToCompletionsCount ->
+                assertEquals("You're breathtaking!", textToCompletionsCount.first)
+                assertTrue(textToCompletionsCount.second == null)
             }
         }
     }
@@ -359,9 +365,11 @@ class HabitsListViewModelTest {
         viewModel.markHabitAsCompletedOnClick(habits[5])
         assertFalse(viewModel.habitMarkedAsCompleted.value == null)
         viewModel.habitMarkedAsCompleted.value?.let {
-            assertFalse(it.getContentIfNotHandled() == null)
-            it.getContentIfNotHandled()?.let { message ->
-                assertEquals("Можете выполнить ещё 1 раз", message)
+            val result = it.getContentIfNotHandled()
+            assertFalse(result == null)
+            result?.let { textToCompletionsCount ->
+                assertEquals("Можете выполнить ещё ", textToCompletionsCount.first)
+                assertEquals(1, textToCompletionsCount.second)
             }
         }
     }
@@ -372,9 +380,11 @@ class HabitsListViewModelTest {
         viewModel.markHabitAsCompletedOnClick(habits[4])
         assertFalse(viewModel.habitMarkedAsCompleted.value == null)
         viewModel.habitMarkedAsCompleted.value?.let {
-            assertFalse(it.getContentIfNotHandled() == null)
-            it.getContentIfNotHandled()?.let { message ->
-                assertEquals("Хватит это делать!", message)
+            val result = it.getContentIfNotHandled()
+            assertFalse(result == null)
+            result?.let { textToCompletionsCount ->
+                assertEquals("Хватит это делать!", textToCompletionsCount.first)
+                assertTrue(textToCompletionsCount.second==null)
             }
         }
     }
@@ -385,9 +395,11 @@ class HabitsListViewModelTest {
         viewModel.markHabitAsCompletedOnClick(habits[3])
         assertFalse(viewModel.habitMarkedAsCompleted.value == null)
         viewModel.habitMarkedAsCompleted.value?.let {
-            assertFalse(it.getContentIfNotHandled() == null)
-            it.getContentIfNotHandled()?.let { message ->
-                assertEquals("Хватит это делать!", message)
+            val result = it.getContentIfNotHandled()
+            assertFalse(result == null)
+            result?.let { textToCompletionsCount ->
+                assertEquals("Хватит это делать!", textToCompletionsCount.first)
+                assertTrue(textToCompletionsCount.second==null)
             }
         }
     }

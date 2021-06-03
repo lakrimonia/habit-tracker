@@ -145,8 +145,8 @@ class HabitsListViewModel @Inject constructor(
 
     fun findByName(name: CharSequence) {
         viewModelScope.launch {
-            filteredByNameHabits =
-                filterAndSortHabitsUseCase.getHabitsFilteredByName(name)
+            if (filteredByNameHabits != null || name.isNotEmpty())
+                filteredByNameHabits = filterAndSortHabitsUseCase.getHabitsFilteredByName(name)
             val union = unionSortingAndFilteringResult()
             changeList(mutableGoodHabits, union.filter { it.type == HabitType.GOOD })
             changeList(mutableBadHabits, union.filter { it.type == HabitType.BAD })

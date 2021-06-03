@@ -23,11 +23,6 @@ class UseCasesTest {
         repository = TestHabitsRepository(habits.toMutableList())
     }
 
-    @After
-    fun tearDown() {
-
-    }
-
     @Test
     fun getAllHabitsUseCase() = runBlocking {
         val getAllHabitsUseCase = GetAllHabitsUseCase(repository)
