@@ -384,7 +384,7 @@ class HabitsListViewModelTest {
             assertFalse(result == null)
             result?.let { textToCompletionsCount ->
                 assertEquals("Хватит это делать!", textToCompletionsCount.first)
-                assertTrue(textToCompletionsCount.second==null)
+                assertTrue(textToCompletionsCount.second == null)
             }
         }
     }
@@ -399,7 +399,7 @@ class HabitsListViewModelTest {
             assertFalse(result == null)
             result?.let { textToCompletionsCount ->
                 assertEquals("Хватит это делать!", textToCompletionsCount.first)
-                assertTrue(textToCompletionsCount.second==null)
+                assertTrue(textToCompletionsCount.second == null)
             }
         }
     }

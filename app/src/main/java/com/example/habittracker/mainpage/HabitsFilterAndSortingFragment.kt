@@ -4,16 +4,16 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import com.example.habittracker.ApplicationWithDaggerComponent
 import com.example.habittracker.ColorPicker
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitsFilterAndSortingBinding
-import com.example.habittracker.ApplicationWithDaggerComponent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import javax.inject.Inject
 

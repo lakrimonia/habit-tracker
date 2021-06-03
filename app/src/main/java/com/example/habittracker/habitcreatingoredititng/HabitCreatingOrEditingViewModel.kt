@@ -1,19 +1,17 @@
 package com.example.habittracker.habitcreatingoredititng
 
 import androidx.lifecycle.*
-import com.example.data.HabitRepository
 import com.example.domain.Habit
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
 import com.example.domain.InsertHabitUseCase
 import com.example.domain.usecases.GetHabitToEditUseCase
 import com.example.habittracker.Event
-import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.flow.collect
 
 @Singleton
 class HabitCreatingOrEditingViewModel @Inject constructor(

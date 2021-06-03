@@ -2,7 +2,6 @@ package com.example.habittracker.habitcreatingoredititng
 
 import android.graphics.Color
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
 import com.example.domain.Habit
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
@@ -17,11 +16,10 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Before
-import org.junit.Test
-
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.*
 
 @ExperimentalCoroutinesApi
@@ -279,7 +277,7 @@ class HabitCreatingOrEditingViewModelTest {
 
     @Test
     fun editHabit() {
-        viewModel.name.observeForever{}
+        viewModel.name.observeForever {}
         runBlocking {
             repository.setHabitToEdit(
                 Habit(
@@ -297,8 +295,8 @@ class HabitCreatingOrEditingViewModelTest {
                 )
             )
         }
-        assertFalse(viewModel.name.value==null)
-        viewModel.name.value?.let{
+        assertFalse(viewModel.name.value == null)
+        viewModel.name.value?.let {
             assertEquals("Гулять", it)
         }
     }

@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.example.habittracker.ApplicationWithDaggerComponent
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentMainPageBinding
-import com.example.habittracker.ApplicationWithDaggerComponent
 import com.google.android.material.tabs.TabLayoutMediator
 import javax.inject.Inject
 

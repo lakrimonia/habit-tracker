@@ -2,7 +2,9 @@ package com.example.habittracker
 
 import com.example.domain.test.HabitsListForTest
 import com.example.domain.test.TestHabitsRepository
-import com.example.habittracker.di.*
+import com.example.habittracker.di.ContextModule
+import com.example.habittracker.di.DaggerApplicationComponent
+import com.example.habittracker.di.HabitModule
 
 class TestApplication : ApplicationWithDaggerComponent() {
     override fun onCreate() {

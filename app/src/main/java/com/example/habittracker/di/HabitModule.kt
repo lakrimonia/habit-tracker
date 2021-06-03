@@ -7,10 +7,8 @@ import com.example.domain.*
 import com.example.domain.usecases.EditHabitUseCase
 import com.example.domain.usecases.GetHabitToEditUseCase
 import com.google.gson.GsonBuilder
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.multibindings.IntoMap
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit

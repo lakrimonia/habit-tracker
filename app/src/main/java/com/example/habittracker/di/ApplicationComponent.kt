@@ -4,11 +4,13 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [
-    HabitModule::class,
-    ContextModule::class,
-    SubcomponentModule::class
-])
+@Component(
+    modules = [
+        HabitModule::class,
+        ContextModule::class,
+        SubcomponentModule::class
+    ]
+)
 interface ApplicationComponent {
     fun getViewModelSubcomponent(): ViewModelSubcomponent.Factory
 }

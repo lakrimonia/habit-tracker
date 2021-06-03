@@ -4,7 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.example.data.converters.*
+import com.example.data.converters.DatePairConverter
+import com.example.data.converters.HabitPriorityConverter
+import com.example.data.converters.MutableMapConverter
+import com.example.data.converters.PairConverter
 import com.example.domain.Habit
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType

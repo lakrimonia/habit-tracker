@@ -7,7 +7,6 @@ import com.example.domain.usecases.EditHabitUseCase
 import com.example.domain.usecases.GetHabitToEditUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

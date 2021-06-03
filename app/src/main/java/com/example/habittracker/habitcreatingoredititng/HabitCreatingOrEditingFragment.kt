@@ -7,15 +7,21 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
-import com.example.habittracker.*
+import com.example.habittracker.ApplicationWithDaggerComponent
+import com.example.habittracker.ColorPicker
+import com.example.habittracker.MainActivityCallback
+import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 import javax.inject.Inject
 

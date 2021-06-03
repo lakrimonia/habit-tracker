@@ -3,10 +3,10 @@
     <item
         android:id="@+id/main_page"
         android:title="@string/main_page_menu_item"
-        android:icon="@drawable/ic_main_page_24"/>
+        android:icon="@drawable/ic_main_page_24" />
 
     <item
         android:id="@+id/about_app"
         android:title="@string/about_app_menu_item"
-        android:icon="@drawable/ic_about_app_24"/>
+        android:icon="@drawable/ic_about_app_24" />
 </menu>

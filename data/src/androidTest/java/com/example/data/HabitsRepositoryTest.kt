@@ -8,15 +8,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.domain.Habit
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
-import org.junit.Before
-import org.junit.runner.RunWith
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 import java.util.*
-import org.junit.Assert.*
-import org.mockito.Mockito.*
 
 @RunWith(AndroidJUnit4::class)
 class HabitsRepositoryTest {

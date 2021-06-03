@@ -2,17 +2,17 @@ package com.example.habittracker.mainpage
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.example.domain.Habit
 import com.example.domain.HabitType
+import com.example.habittracker.ApplicationWithDaggerComponent
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitsListBinding
-import com.example.habittracker.ApplicationWithDaggerComponent
 import javax.inject.Inject
 
 
