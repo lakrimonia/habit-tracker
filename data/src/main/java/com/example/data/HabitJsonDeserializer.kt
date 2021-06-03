@@ -10,6 +10,10 @@ import java.lang.reflect.Type
 import java.util.*
 
 class HabitJsonDeserializer : JsonDeserializer<Habit> {
+    private lateinit var start: Date
+    private lateinit var end: Date
+    private var completionsCount = 0
+
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
@@ -26,11 +30,30 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
         val doneDates =
             json.asJsonObject.get("done_dates").asJsonArray.map { it.asLong }.toMutableList()
 
+        val previousPeriodToCompletionsCount = createPeriodToCompletionsCount(doneDates, days)
+
+        val id = json.asJsonObject.get("uid").asString
+        return Habit(
+            name,
+            description,
+            priority,
+            type,
+            times to days,
+            color,
+            changingDate,
+            previousPeriodToCompletionsCount,
+            start to end,
+            completionsCount,
+            id
+        )
+    }
+
+    private fun createPeriodToCompletionsCount(
+        doneDates: MutableList<Long>,
+        days: Int
+    ): MutableMap<Pair<Date, Date>, Int> {
         val today = Calendar.getInstance()
         val previousPeriodToCompletionsCount = mutableMapOf<Pair<Date, Date>, Int>()
-        var start: Date? = null
-        var end: Date? = null
-        var completionsCount = 0
         if (doneDates.isEmpty()) {
             start = today.time
             today.add(Calendar.DATE, days - 1)
@@ -44,10 +67,10 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
             completionsCount++
             for (i in 1 until doneDates.size) {
                 val cur = Date(doneDates[i])
-                if (end!!.after(cur))
+                if (end.after(cur))
                     completionsCount++
                 else {
-                    previousPeriodToCompletionsCount[start!! to end] = completionsCount
+                    previousPeriodToCompletionsCount[start to end] = completionsCount
                     calendar.add(Calendar.DATE, 1)
                     start = calendar.time
                     calendar.add(Calendar.DATE, days - 1)
@@ -56,20 +79,6 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
                 }
             }
         }
-
-        val id = json.asJsonObject.get("uid").asString
-        return Habit(
-            name,
-            description,
-            priority,
-            type,
-            times to days,
-            color,
-            changingDate,
-            previousPeriodToCompletionsCount,
-            start!! to end!!,
-            completionsCount,
-            id
-        )
+        return previousPeriodToCompletionsCount
     }
 }

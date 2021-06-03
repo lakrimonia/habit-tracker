@@ -89,6 +89,31 @@ class HabitsRepositoryTest {
     }
 
     @Test
+    fun insertHabitWithAlreadyExistingId() = runBlocking {
+        val habitToInsert = Habit(
+            "000",
+            "",
+            HabitPriority.MEDIUM,
+            HabitType.GOOD,
+            1 to 1,
+            Color.GREEN,
+            Calendar.getInstance().time.time,
+            mutableMapOf(),
+            Calendar.getInstance().time to Calendar.getInstance().time,
+            0,
+            "0"
+        )
+        `when`(habitApi.addOrUpdateHabit(habitToInsert)).then {
+            habits.add(habitToInsert)
+            HabitUID(habitToInsert.id)
+        }
+        habitsRepository.insert(habitToInsert)
+        val h = habitsRepository.getAll().first()
+        assertEquals(1, h.size)
+        assertEquals(habitToInsert, h[0])
+    }
+
+    @Test
     fun delete() = runBlocking {
         val habitToDelete = habits[0]
         `when`(habitApi.deleteHabit(HabitUID(habitToDelete.id))).then {

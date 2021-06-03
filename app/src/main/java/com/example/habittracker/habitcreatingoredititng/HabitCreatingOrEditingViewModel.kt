@@ -81,6 +81,14 @@ class HabitCreatingOrEditingViewModel @Inject constructor(
         MutableLiveData<Boolean>()
     }
     val daysNotEntered: LiveData<Boolean> = mutableDaysNotEntered
+    private val mutableTimesEqualsZero by lazy {
+        MutableLiveData<Boolean>()
+    }
+    val timesEqualsZero: LiveData<Boolean> = mutableTimesEqualsZero
+    private val mutableDaysEqualsZero by lazy {
+        MutableLiveData<Boolean>()
+    }
+    val daysEqualsZero: LiveData<Boolean> = mutableDaysEqualsZero
 
     val mediatorLiveData: MediatorLiveData<Habit> by lazy {
         MediatorLiveData()
@@ -173,12 +181,19 @@ class HabitCreatingOrEditingViewModel @Inject constructor(
     }
 
     fun clickOnFab() {
-        if (habitName == "" || habitPeriodicityTimes == "" || habitPeriodicityDays == "") {
+        if (habitName == "" || habitPeriodicityTimes == "" || habitPeriodicityDays == ""
+            || habitPeriodicityTimes.all { it == '0' } || habitPeriodicityDays.all { it == '0' }
+        ) {
             mutableNameNotEntered.value = habitName == ""
             mutableTimesNotEntered.value = habitPeriodicityTimes == ""
             mutableDaysNotEntered.value = habitPeriodicityDays == ""
+            if (habitPeriodicityTimes != "")
+                mutableTimesEqualsZero.value = habitPeriodicityTimes.all { it == '0' }
+            if (habitPeriodicityDays != "")
+                mutableDaysEqualsZero.value = habitPeriodicityDays.all { it == '0' }
             return
         }
+
         if (habitDescription == "") habitDescription = defaultDescription
         habit?.let {
             val habit = Habit(

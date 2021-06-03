@@ -13,6 +13,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.example.habittracker.databinding.ActivityMainBinding
 import com.example.habittracker.habitcreatingoredititng.HabitCreatingOrEditingFragment
+import com.example.habittracker.habitcreatingoredititng.OnBackPressedListener
 import com.example.habittracker.mainpage.MainPageFragment
 import com.google.android.material.navigation.NavigationView
 
@@ -88,9 +89,10 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-        if (supportFragmentManager.backStackEntryCount > 0)
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            (supportFragmentManager.findFragmentByTag(habitCreateOrEditingTag) as OnBackPressedListener).onBackPressed()
             returnToMainPage()
-        else
+        } else
             super.onBackPressed()
     }
 

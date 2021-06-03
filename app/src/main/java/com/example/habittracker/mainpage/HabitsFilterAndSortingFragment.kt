@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.example.habittracker.ColorPicker
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitsFilterAndSortingBinding
@@ -31,7 +30,7 @@ class HabitsFilterAndSortingFragment : Fragment() {
     ): View {
         val habitsListComponent =
             (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
-                .habitsListComponent()
+                .getViewModelSubcomponent()
                 .create()
         habitsListComponent.inject(this)
         _binding = FragmentHabitsFilterAndSortingBinding.inflate(inflater, container, false)

@@ -2,5 +2,5 @@ package com.example.habittracker.di
 
 import dagger.Module
 
-@Module(subcomponents = [HabitsListComponent::class])
+@Module(subcomponents = [ViewModelSubcomponent::class])
 class SubcomponentModule

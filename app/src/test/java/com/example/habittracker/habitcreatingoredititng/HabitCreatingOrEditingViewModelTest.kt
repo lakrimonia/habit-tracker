@@ -217,4 +217,56 @@ class HabitCreatingOrEditingViewModelTest {
             assertFalse(it)
         }
     }
+
+    @Test
+    fun clickOnFabWhenTimesEqualsZero() {
+        setName()
+        viewModel.periodicityTimes.observeForever {}
+        viewModel.setPeriodicityTimes("0")
+        setPeriodicityDays()
+        viewModel.timesEqualsZero.observeForever {}
+        viewModel.clickOnFab()
+        assertFalse(viewModel.timesEqualsZero.value == null)
+        viewModel.timesEqualsZero.value?.let {
+            assertTrue(it)
+        }
+        viewModel.setPeriodicityTimes("00")
+        viewModel.clickOnFab()
+        assertFalse(viewModel.timesEqualsZero.value == null)
+        viewModel.timesEqualsZero.value?.let {
+            assertTrue(it)
+        }
+        viewModel.setPeriodicityTimes("000")
+        viewModel.clickOnFab()
+        assertFalse(viewModel.timesEqualsZero.value == null)
+        viewModel.timesEqualsZero.value?.let {
+            assertTrue(it)
+        }
+    }
+
+    @Test
+    fun clickOnFabWhenDaysEqualsZero() {
+        setName()
+        setPeriodicityTimes()
+        viewModel.periodicityDays.observeForever {}
+        viewModel.setPeriodicityTimes("0")
+        viewModel.daysEqualsZero.observeForever {}
+        viewModel.clickOnFab()
+        assertFalse(viewModel.daysEqualsZero.value == null)
+        viewModel.daysEqualsZero.value?.let {
+            assertTrue(it)
+        }
+        viewModel.setPeriodicityTimes("00")
+        viewModel.clickOnFab()
+        assertFalse(viewModel.daysEqualsZero.value == null)
+        viewModel.daysEqualsZero.value?.let {
+            assertTrue(it)
+        }
+        viewModel.setPeriodicityTimes("000")
+        viewModel.clickOnFab()
+        assertFalse(viewModel.daysEqualsZero.value == null)
+        viewModel.daysEqualsZero.value?.let {
+            assertTrue(it)
+        }
+    }
 }

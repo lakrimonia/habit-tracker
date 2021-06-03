@@ -12,7 +12,7 @@
         tools:context=".habitcreatingoredititng.HabitCreatingOrEditingFragment">
 
         <TextView
-            android:id="@+id/nameNotEntered"
+            android:id="@+id/name_not_entered"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/should_enter"
@@ -23,20 +23,18 @@
             app:layout_constraintTop_toBottomOf="@id/name_field_editing" />
 
         <TextView
-            android:id="@+id/periodicityTimesNotEntered"
+            android:id="@+id/periodicity_times_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/should_enter"
             android:textColor="@color/red"
             android:textSize="8sp"
             android:visibility="invisible"
             app:layout_constraintTop_toBottomOf="@id/times_field_editing" />
 
         <TextView
-            android:id="@+id/periodicityDaysNotEntered"
+            android:id="@+id/periodicity_days_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/should_enter"
             android:textColor="@color/red"
             android:textSize="8sp"
             android:visibility="invisible"
@@ -234,7 +232,7 @@
         </HorizontalScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionButton"
+            android:id="@+id/save_changes_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"

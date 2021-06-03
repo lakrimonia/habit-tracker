@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.habittracker.MainActivityCallback
 import com.example.habittracker.R
@@ -35,7 +33,7 @@ class MainPageFragment : Fragment() {
     ): View {
         val habitsListComponent =
             (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
-                .habitsListComponent()
+                .getViewModelSubcomponent()
                 .create()
         habitsListComponent.inject(this)
         _binding = FragmentMainPageBinding.inflate(inflater, container, false)
@@ -46,7 +44,7 @@ class MainPageFragment : Fragment() {
                 tab.text = resources.getText(R.string.good_habits_tab_title)
             else tab.text = resources.getText(R.string.bad_habits_tab_title)
         }.attach()
-        binding.floatingActionButton.setOnClickListener {
+        binding.addHabitButton.setOnClickListener {
             viewModel.clickOnFab()
         }
         return binding.root

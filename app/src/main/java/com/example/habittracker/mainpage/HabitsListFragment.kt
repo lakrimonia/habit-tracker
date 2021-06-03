@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import com.example.domain.Habit
 import com.example.domain.HabitType
 import com.example.habittracker.MainActivityCallback
@@ -55,7 +54,7 @@ class HabitsListFragment : Fragment() {
     ): View {
         val habitsListComponent =
             (requireActivity().application as ApplicationWithDaggerComponent).applicationComponent
-                .habitsListComponent()
+                .getViewModelSubcomponent()
                 .create()
         habitsListComponent.inject(this)
         _binding = FragmentHabitsListBinding.inflate(inflater, container, false)
@@ -92,8 +91,16 @@ class HabitsListFragment : Fragment() {
         })
 
         viewModel.habitMarkedAsCompleted.observe(viewLifecycleOwner, {
-            it.getContentIfNotHandled()?.let { text ->
-                val toast = Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT)
+            it.getContentIfNotHandled()?.let { textToTimes ->
+                var finalText = textToTimes.first
+                textToTimes.second?.let { times ->
+                    finalText += resources.getQuantityString(
+                        R.plurals.periodicity_times,
+                        times,
+                        times
+                    )
+                }
+                val toast = Toast.makeText(requireContext(), finalText, Toast.LENGTH_SHORT)
                 toast.show()
             }
         })

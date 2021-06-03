@@ -1,8 +1,5 @@
 package com.example.habittracker.di
 
-import com.example.domain.*
-import com.example.domain.usecases.EditHabitUseCase
-import com.example.domain.usecases.GetHabitToEditUseCase
 import dagger.Component
 import javax.inject.Singleton
 
@@ -13,5 +10,5 @@ import javax.inject.Singleton
     SubcomponentModule::class
 ])
 interface ApplicationComponent {
-    fun habitsListComponent(): HabitsListComponent.Factory
+    fun getViewModelSubcomponent(): ViewModelSubcomponent.Factory
 }

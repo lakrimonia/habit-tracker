@@ -13,15 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.ViewCompat
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.domain.HabitPriority
 import com.example.domain.HabitType
 import com.example.habittracker.*
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 import javax.inject.Inject
 
-class HabitCreatingOrEditingFragment : Fragment() {
+class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
     private var _binding: FragmentHabitCreatingOrEditingBinding? = null
     private val binding get() = _binding!!
     private var callback: MainActivityCallback? = null
@@ -40,7 +38,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
     ): View {
         (requireActivity().application as ApplicationWithDaggerComponent)
             .applicationComponent
-            .habitsListComponent()
+            .getViewModelSubcomponent()
             .create()
             .inject(this)
         _binding = FragmentHabitCreatingOrEditingBinding.inflate(inflater, container, false)
@@ -49,7 +47,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
             binding.currentColorIcon.setImageDrawable(color)
             viewModel.setColor(color.color.toString())
         }
-        binding.floatingActionButton.setOnClickListener {
+        binding.saveChangesButton.setOnClickListener {
             viewModel.clickOnFab()
         }
 
@@ -217,7 +215,8 @@ class HabitCreatingOrEditingFragment : Fragment() {
                     binding.timesFieldEditing,
                     binding.periodicityFieldFirstPart
                 )
-                binding.periodicityTimesNotEntered.visibility = View.VISIBLE
+                binding.periodicityTimesError.text = resources.getText(R.string.should_enter)
+                binding.periodicityTimesError.visibility = View.VISIBLE
             } else {
                 changeColor(
                     Color.BLACK,
@@ -225,7 +224,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
                     binding.timesFieldEditing,
                     binding.periodicityFieldFirstPart
                 )
-                binding.periodicityTimesNotEntered.visibility = View.INVISIBLE
+                binding.periodicityTimesError.visibility = View.INVISIBLE
             }
         })
 
@@ -237,7 +236,8 @@ class HabitCreatingOrEditingFragment : Fragment() {
                     binding.daysFieldEditing,
                     binding.periodicityFieldSecondPart
                 )
-                binding.periodicityDaysNotEntered.visibility = View.VISIBLE
+                binding.periodicityDaysError.text = resources.getText(R.string.should_enter)
+                binding.periodicityDaysError.visibility = View.VISIBLE
             } else {
                 changeColor(
                     Color.BLACK,
@@ -245,7 +245,47 @@ class HabitCreatingOrEditingFragment : Fragment() {
                     binding.daysFieldEditing,
                     binding.periodicityFieldSecondPart
                 )
-                binding.periodicityDaysNotEntered.visibility = View.INVISIBLE
+                binding.periodicityDaysError.visibility = View.INVISIBLE
+            }
+        })
+
+        viewModel.timesEqualsZero.observe(viewLifecycleOwner, { equalsZero ->
+            if (equalsZero) {
+                changeColor(
+                    Color.RED, binding.periodicityField,
+                    binding.timesFieldEditing,
+                    binding.periodicityFieldFirstPart
+                )
+                binding.periodicityTimesError.text =
+                    resources.getText(R.string.value_should_be_more_than_zero)
+                binding.periodicityTimesError.visibility = View.VISIBLE
+            } else {
+                changeColor(
+                    Color.BLACK, binding.periodicityField,
+                    binding.timesFieldEditing,
+                    binding.periodicityFieldFirstPart
+                )
+                binding.periodicityTimesError.visibility = View.INVISIBLE
+            }
+        })
+
+        viewModel.daysEqualsZero.observe(viewLifecycleOwner, { equalsZero ->
+            if (equalsZero) {
+                changeColor(
+                    Color.RED, binding.periodicityField,
+                    binding.daysFieldEditing,
+                    binding.periodicityFieldSecondPart
+                )
+                binding.periodicityDaysError.text =
+                    resources.getText(R.string.value_should_be_more_than_zero)
+                binding.periodicityDaysError.visibility = View.VISIBLE
+            } else {
+                changeColor(
+                    Color.BLACK, binding.periodicityField,
+                    binding.daysFieldEditing,
+                    binding.periodicityFieldSecondPart
+                )
+                binding.periodicityDaysError.visibility = View.INVISIBLE
             }
         })
     }
@@ -261,8 +301,7 @@ class HabitCreatingOrEditingFragment : Fragment() {
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onBackPressed() {
         viewModel.clearFields()
     }
 }
