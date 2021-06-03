@@ -1,7 +1,6 @@
 package com.example.data
 
 import androidx.room.*
-import com.example.domain.Habit
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -10,9 +10,8 @@ import com.example.domain.HabitType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
-
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
@@ -35,7 +34,7 @@ class HabitDatabaseTest {
     }
 
     @Test
-    fun dbOrderedCorrectly() = runBlocking{
+    fun dbOrderedCorrectly() = runBlocking {
         val medium = HabitEntity(
             "",
             "",
