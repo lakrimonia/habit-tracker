@@ -10,10 +10,9 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import kotlin.collections.ArrayList
 
 object HabitProgressLineChart {
-    fun draw(lineChartView: LineChart, habit: Habit){
+    fun draw(lineChartView: LineChart, habit: Habit) {
         val max = habit.previousPeriodToCompletionsCount.size + 2
         lineChartView.xAxis.labelCount = max
         lineChartView.xAxis.valueFormatter = CompletionsDatesValueFormatter(habit)
@@ -36,7 +35,7 @@ object HabitProgressLineChart {
         lineChartView.xAxis.labelRotationAngle = -45f
     }
 
-    private fun getCompletedTimesLine(habit: Habit, valueFormatter: ValueFormatter): LineDataSet{
+    private fun getCompletedTimesLine(habit: Habit, valueFormatter: ValueFormatter): LineDataSet {
         val completedTimes = ArrayList<Entry>()
         var i = 0
         habit.previousPeriodToCompletionsCount.forEach { (_, count) ->
@@ -53,12 +52,19 @@ object HabitProgressLineChart {
         return lineDataSet
     }
 
-    private fun getMinimumOrMaximumLine(habit: Habit, valueFormatter: ValueFormatter, xMax: Float): LineDataSet{
+    private fun getMinimumOrMaximumLine(
+        habit: Habit,
+        valueFormatter: ValueFormatter,
+        xMax: Float
+    ): LineDataSet {
         val minimumOrMaximumLineValues = ArrayList<Entry>()
         minimumOrMaximumLineValues.add(Entry(0f, habit.periodicityTimesPerDay.first.toFloat()))
         minimumOrMaximumLineValues.add(Entry(xMax, habit.periodicityTimesPerDay.first.toFloat()))
         val minimumOrMaximumLine =
-            LineDataSet(minimumOrMaximumLineValues, if (habit.type == HabitType.GOOD) "минимум" else "максимум")
+            LineDataSet(
+                minimumOrMaximumLineValues,
+                if (habit.type == HabitType.GOOD) "минимум" else "максимум"
+            )
         minimumOrMaximumLine.lineWidth = 4f
         minimumOrMaximumLine.circleRadius = 5f
         val color = if (habit.type == HabitType.GOOD) Color.GREEN else Color.RED
@@ -68,12 +74,17 @@ object HabitProgressLineChart {
         return minimumOrMaximumLine
     }
 
-    private fun getInvisibleLine(habit: Habit, valueFormatter: ValueFormatter, xMax: Float): LineDataSet{
+    private fun getInvisibleLine(
+        habit: Habit,
+        valueFormatter: ValueFormatter,
+        xMax: Float
+    ): LineDataSet {
         val invisibleLinesEntries = ArrayList<Entry>()
         invisibleLinesEntries.add(Entry(0f, 0f))
         val y = habit.previousPeriodToCompletionsCount.map { it.value }.maxOrNull()
-        val yMax =
+        var yMax =
             if (y == null) habit.completionsCount else if (y > habit.completionsCount) y else habit.completionsCount
+        if (yMax == 0) yMax++
         invisibleLinesEntries.add(Entry(xMax, yMax * 2f))
         val invisibleLines = LineDataSet(invisibleLinesEntries, "")
         invisibleLines.color = Color.TRANSPARENT
