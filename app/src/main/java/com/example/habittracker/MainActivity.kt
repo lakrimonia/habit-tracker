@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
-    private val habitCreateOrEditingTag = "create or editing"
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -90,7 +89,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         if (supportFragmentManager.backStackEntryCount > 0) {
-            (supportFragmentManager.findFragmentByTag(habitCreateOrEditingTag) as OnBackPressedListener).onBackPressed()
+            (supportFragmentManager.fragments.last() as OnBackPressedListener).onBackPressed()
             returnToMainPage()
         } else
             super.onBackPressed()
@@ -100,8 +99,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         supportFragmentManager.commit {
             replace(
                 R.id.fragment_container,
-                HabitCreatingOrEditingFragment(),
-                habitCreateOrEditingTag
+                HabitCreatingOrEditingFragment()
             )
             addToBackStack(null)
         }
@@ -113,8 +111,7 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
         supportFragmentManager.commit {
             replace(
                 R.id.fragment_container,
-                HabitCreatingOrEditingFragment(),
-                habitCreateOrEditingTag
+                HabitCreatingOrEditingFragment()
             )
             addToBackStack(null)
         }

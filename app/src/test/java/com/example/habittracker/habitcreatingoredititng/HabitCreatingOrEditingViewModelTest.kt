@@ -48,6 +48,16 @@ class HabitCreatingOrEditingViewModelTest {
     }
 
     @Test
+    fun rightPageTitleWhenHabitCreating() {
+        viewModel.pageTitle.observeForever {}
+        viewModel.clearFields()
+        assertFalse(viewModel.pageTitle.value == null)
+        viewModel.pageTitle.value?.let {
+            assertEquals("Создание привычки", it)
+        }
+    }
+
+    @Test
     fun setName() {
         viewModel.name.observeForever {}
         viewModel.setName("test")
@@ -278,6 +288,7 @@ class HabitCreatingOrEditingViewModelTest {
     @Test
     fun editHabit() {
         viewModel.name.observeForever {}
+        viewModel.pageTitle.observeForever {}
         runBlocking {
             repository.setHabitToEdit(
                 Habit(
@@ -294,6 +305,10 @@ class HabitCreatingOrEditingViewModelTest {
                     "2"
                 )
             )
+        }
+        assertFalse(viewModel.pageTitle.value == null)
+        viewModel.pageTitle.value?.let {
+            assertEquals("Редактирование привычки", it)
         }
         assertFalse(viewModel.name.value == null)
         viewModel.name.value?.let {

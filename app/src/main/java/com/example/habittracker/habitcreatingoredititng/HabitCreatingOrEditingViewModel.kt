@@ -7,6 +7,7 @@ import com.example.domain.HabitType
 import com.example.domain.InsertHabitUseCase
 import com.example.domain.usecases.GetHabitToEditUseCase
 import com.example.habittracker.Event
+import com.example.habittracker.R
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
@@ -18,6 +19,11 @@ class HabitCreatingOrEditingViewModel @Inject constructor(
     private val insertHabitUseCase: InsertHabitUseCase,
     private val getHabitToEditUseCase: GetHabitToEditUseCase
 ) : ViewModel() {
+    private val mutablePageTitle by lazy{
+        MutableLiveData<String>()
+    }
+    val pageTitle: LiveData<String> = mutablePageTitle
+
     private val mutableName by lazy {
         MutableLiveData<String>()
     }
@@ -156,6 +162,7 @@ class HabitCreatingOrEditingViewModel @Inject constructor(
     }
 
     private fun editHabit(habit: Habit) {
+        mutablePageTitle.value = "Редактирование привычки"
         habitName = habit.name
         habitDescription = habit.description
         habitPriority = habit.priority
@@ -167,6 +174,7 @@ class HabitCreatingOrEditingViewModel @Inject constructor(
     }
 
     fun clearFields() {
+        mutablePageTitle.value = "Создание привычки"
         habit = null
         habitName = ""
         habitDescription = ""

@@ -1,8 +1,5 @@
 <resources>
-    <string name="server_token">588f08fd-d56b-4149-9c54-926677ec98d9</string>
     <string name="app_name">Трекер привычек</string>
-    <string name="habit_creating_title">Создание привычки</string>
-    <string name="habit_editing_title">Редактирование привычки</string>
     <string name="name_field_title">Название</string>
     <string name="description_field_title">Описание</string>
     <string name="priority_field_title">Приоритет</string>

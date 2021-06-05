@@ -64,9 +64,12 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.pageTitle.text = resources.getString(R.string.habit_creating_title)
 
         viewModel.mediatorLiveData.observe(viewLifecycleOwner, { })
+
+        viewModel.pageTitle.observe(viewLifecycleOwner, {
+            binding.pageTitle.text = it
+        })
 
         binding.nameFieldEditing.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
