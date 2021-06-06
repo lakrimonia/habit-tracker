@@ -72,7 +72,7 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
                 val doneDate = Calendar.getInstance()
                 doneDate.time = Date(doneDates[i])
                 while (comparator.compare(date.time, doneDate.time) < 0)
-                    addDaysWhenHabitCompletedZeroTimes(
+                    addPeriod(
                         date,
                         previousPeriodToCompletionsCount,
                         days
@@ -80,12 +80,12 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
                 completionsCount++
             }
             while (comparator.compare(date.time, today.time) < 0)
-                addDaysWhenHabitCompletedZeroTimes(date, previousPeriodToCompletionsCount, days)
+                addPeriod(date, previousPeriodToCompletionsCount, days)
         }
         return previousPeriodToCompletionsCount
     }
 
-    private fun addDaysWhenHabitCompletedZeroTimes(
+    private fun addPeriod(
         date: Calendar,
         previousPeriodToCompletionsCount: MutableMap<Pair<Date, Date>, Int>,
         days: Int
