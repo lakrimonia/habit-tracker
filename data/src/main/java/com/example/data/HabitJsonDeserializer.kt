@@ -62,27 +62,39 @@ class HabitJsonDeserializer : JsonDeserializer<Habit> {
             today.add(Calendar.DATE, days - 1)
             end = today.time
         } else {
-            val u = Calendar.getInstance()
-            u.time = Date(doneDates[0])
-            start = u.time
-            u.add(Calendar.DATE, days - 1)
-            end = u.time
+            val date = Calendar.getInstance()
+            date.time = Date(doneDates[0])
+            start = date.time
+            date.add(Calendar.DATE, days - 1)
+            end = date.time
             completionsCount++
             for (i in 1 until doneDates.size) {
-                val cur = Calendar.getInstance()
-                cur.time = Date(doneDates[i])
-                if (comparator.compare(u.time, cur.time) >= 0)
-                    completionsCount++
-                else while (comparator.compare(u.time, cur.time) < 0) {
-                    previousPeriodToCompletionsCount[start!! to end!!] = completionsCount
-                    u.add(Calendar.DATE, 1)
-                    start = u.time
-                    u.add(Calendar.DATE, days - 1)
-                    end = u.time
-                    completionsCount = 0
-                }
+                val doneDate = Calendar.getInstance()
+                doneDate.time = Date(doneDates[i])
+                while (comparator.compare(date.time, doneDate.time) < 0)
+                    addDaysWhenHabitCompletedZeroTimes(
+                        date,
+                        previousPeriodToCompletionsCount,
+                        days
+                    )
+                completionsCount++
             }
+            while (comparator.compare(date.time, today.time) < 0)
+                addDaysWhenHabitCompletedZeroTimes(date, previousPeriodToCompletionsCount, days)
         }
         return previousPeriodToCompletionsCount
+    }
+
+    private fun addDaysWhenHabitCompletedZeroTimes(
+        date: Calendar,
+        previousPeriodToCompletionsCount: MutableMap<Pair<Date, Date>, Int>,
+        days: Int
+    ) {
+        previousPeriodToCompletionsCount[start!! to end!!] = completionsCount
+        date.add(Calendar.DATE, 1)
+        start = date.time
+        date.add(Calendar.DATE, days - 1)
+        end = date.time
+        completionsCount = 0
     }
 }
