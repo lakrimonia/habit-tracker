@@ -5,8 +5,6 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +19,6 @@ import com.example.domain.HabitType
 import com.example.habittracker.ApplicationWithDaggerComponent
 import com.example.habittracker.ColorPicker
 import com.example.habittracker.MainActivityCallback
-import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentHabitCreatingOrEditingBinding
 import javax.inject.Inject
 
@@ -64,36 +61,24 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel.mediatorLiveData.observe(viewLifecycleOwner, { })
-
         viewModel.pageTitle.observe(viewLifecycleOwner, {
             binding.pageTitle.text = it
         })
-
-        binding.nameFieldEditing.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
+        binding.nameFieldEditing.addTextChangedListener(object : FieldTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.setName(s.toString())
             }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
         })
-        binding.descriptionFieldEditing.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
+        binding.descriptionFieldEditing.addTextChangedListener(object : FieldTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.setDescription(s.toString())
-            }
-
-            override fun afterTextChanged(s: Editable?) {
             }
         })
         binding.priorityFieldEditing.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
 
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -111,7 +96,6 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
                     )
                 }
             }
-
         binding.typeFieldEditing.setOnCheckedChangeListener { _, checkedId ->
             viewModel.setType(
                 when (checkedId) {
@@ -121,41 +105,21 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
                 }
             )
         }
-
-        binding.timesFieldEditing.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
+        binding.timesFieldEditing.addTextChangedListener(object : FieldTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val times = s.toString()
-                if (times != "")
-                    viewModel.setPeriodicityTimes(times)
-                else viewModel.setPeriodicityTimes("")
-            }
-
-            override fun afterTextChanged(s: Editable?) {
+                viewModel.setPeriodicityTimes(s.toString())
             }
         })
-
-        binding.daysFieldEditing.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
+        binding.daysFieldEditing.addTextChangedListener(object : FieldTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val days = s.toString()
-                if (days != "")
-                    viewModel.setPeriodicityDays(days)
-                else viewModel.setPeriodicityDays("")
-            }
-
-            override fun afterTextChanged(s: Editable?) {
+                viewModel.setPeriodicityDays(s.toString())
             }
         })
-
         viewModel.saveChanges.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let {
                 callback?.returnToMainPage()
             }
         })
-
         viewModel.name.observe(viewLifecycleOwner, {
             binding.nameFieldEditing.setText(it ?: "")
         })
@@ -174,7 +138,6 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
                 }
             )
         })
-
         viewModel.type.observe(viewLifecycleOwner, {
             binding.typeFieldEditing.check(
                 when (it) {
@@ -184,18 +147,15 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
                 }
             )
         })
-
         viewModel.periodicityTimes.observe(viewLifecycleOwner, {
             it?.let {
                 binding.timesFieldEditing.setText(it.toString())
             }
         })
-
         viewModel.periodicityDays.observe(viewLifecycleOwner, {
             binding.daysFieldEditing.setText(it?.toString() ?: "")
 
         })
-
         viewModel.color.observe(viewLifecycleOwner, {
             if (it != null)
                 binding.currentColorIcon.setImageDrawable(ColorDrawable(it))
@@ -205,101 +165,74 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
                 viewModel.setColor((binding.currentColorIcon.drawable as ColorDrawable).color.toString())
             }
         })
-
         viewModel.nameNotEntered.observe(viewLifecycleOwner, { isNotEntered ->
-            if (isNotEntered) {
-                changeColor(Color.RED, binding.nameField, binding.nameFieldEditing)
-                binding.nameNotEntered.visibility = View.VISIBLE
-            } else {
-                changeColor(Color.BLACK, binding.nameField, binding.nameFieldEditing)
-                binding.nameNotEntered.visibility = View.INVISIBLE
-            }
+            changeColor(
+                isNotEntered,
+                binding.nameNotEntered,
+                "*нужно заполнить",
+                binding.nameField,
+                binding.nameFieldEditing
+            )
         })
-
         viewModel.timesNotEntered.observe(viewLifecycleOwner, { isNotEntered ->
-            if (isNotEntered) {
-                changeColor(
-                    Color.RED,
-                    binding.periodicityField,
-                    binding.timesFieldEditing,
-                    binding.periodicityFieldFirstPart
-                )
-                binding.periodicityTimesError.text = resources.getText(R.string.should_enter)
-                binding.periodicityTimesError.visibility = View.VISIBLE
-            } else {
-                changeColor(
-                    Color.BLACK,
-                    binding.periodicityField,
-                    binding.timesFieldEditing,
-                    binding.periodicityFieldFirstPart
-                )
-                binding.periodicityTimesError.visibility = View.INVISIBLE
-            }
+            changeColor(
+                isNotEntered,
+                binding.periodicityTimesError,
+                "*нужно заполнить",
+                binding.periodicityField,
+                binding.timesFieldEditing,
+                binding.periodicityFieldFirstPart
+            )
         })
-
         viewModel.daysNotEntered.observe(viewLifecycleOwner, { isNotEntered ->
-            if (isNotEntered) {
-                changeColor(
-                    Color.RED,
-                    binding.periodicityField,
-                    binding.daysFieldEditing,
-                    binding.periodicityFieldSecondPart
-                )
-                binding.periodicityDaysError.text = resources.getText(R.string.should_enter)
-                binding.periodicityDaysError.visibility = View.VISIBLE
-            } else {
-                changeColor(
-                    Color.BLACK,
-                    binding.periodicityField,
-                    binding.daysFieldEditing,
-                    binding.periodicityFieldSecondPart
-                )
-                binding.periodicityDaysError.visibility = View.INVISIBLE
-            }
+            changeColor(
+                isNotEntered,
+                binding.periodicityDaysError,
+                "*нужно заполнить",
+                binding.periodicityField,
+                binding.daysFieldEditing,
+                binding.periodicityFieldSecondPart
+            )
         })
-
         viewModel.timesEqualsZero.observe(viewLifecycleOwner, { equalsZero ->
-            if (equalsZero) {
-                changeColor(
-                    Color.RED, binding.periodicityField,
-                    binding.timesFieldEditing,
-                    binding.periodicityFieldFirstPart
-                )
-                binding.periodicityTimesError.text =
-                    resources.getText(R.string.value_should_be_more_than_zero)
-                binding.periodicityTimesError.visibility = View.VISIBLE
-            } else {
-                changeColor(
-                    Color.BLACK, binding.periodicityField,
-                    binding.timesFieldEditing,
-                    binding.periodicityFieldFirstPart
-                )
-                binding.periodicityTimesError.visibility = View.INVISIBLE
-            }
+            changeColor(
+                equalsZero,
+                binding.periodicityTimesError,
+                "*значение должно быть больше 0",
+                binding.periodicityField,
+                binding.timesFieldEditing,
+                binding.periodicityFieldFirstPart
+            )
         })
-
         viewModel.daysEqualsZero.observe(viewLifecycleOwner, { equalsZero ->
-            if (equalsZero) {
-                changeColor(
-                    Color.RED, binding.periodicityField,
-                    binding.daysFieldEditing,
-                    binding.periodicityFieldSecondPart
-                )
-                binding.periodicityDaysError.text =
-                    resources.getText(R.string.value_should_be_more_than_zero)
-                binding.periodicityDaysError.visibility = View.VISIBLE
-            } else {
-                changeColor(
-                    Color.BLACK, binding.periodicityField,
-                    binding.daysFieldEditing,
-                    binding.periodicityFieldSecondPart
-                )
-                binding.periodicityDaysError.visibility = View.INVISIBLE
-            }
+            changeColor(
+                equalsZero,
+                binding.periodicityDaysError,
+                "*значение должно быть больше 0",
+                binding.periodicityField,
+                binding.daysFieldEditing,
+                binding.periodicityFieldSecondPart
+            )
         })
     }
 
-    private fun changeColor(color: Int, vararg views: View) {
+    private fun changeColor(
+        shouldShowErrorMessage: Boolean,
+        errorMessageView: TextView,
+        errorMessage: String,
+        vararg viewsToChangeColor: View
+    ) {
+        if (shouldShowErrorMessage) {
+            changeColor(Color.RED, viewsToChangeColor)
+            errorMessageView.text = errorMessage
+            errorMessageView.visibility = View.VISIBLE
+        } else {
+            changeColor(Color.BLACK, viewsToChangeColor)
+            errorMessageView.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun changeColor(color: Int, views: Array<out View>) {
         views.forEach {
             if (it is TextView)
                 it.setTextColor(color)
