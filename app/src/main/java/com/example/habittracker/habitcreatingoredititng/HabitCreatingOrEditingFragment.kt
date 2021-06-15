@@ -148,13 +148,10 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
             )
         })
         viewModel.periodicityTimes.observe(viewLifecycleOwner, {
-            it?.let {
-                binding.timesFieldEditing.setText(it.toString())
-            }
+            binding.timesFieldEditing.setText(it?.toString() ?: "")
         })
         viewModel.periodicityDays.observe(viewLifecycleOwner, {
             binding.daysFieldEditing.setText(it?.toString() ?: "")
-
         })
         viewModel.color.observe(viewLifecycleOwner, {
             if (it != null)
@@ -223,16 +220,16 @@ class HabitCreatingOrEditingFragment : Fragment(), OnBackPressedListener {
         vararg viewsToChangeColor: View
     ) {
         if (shouldShowErrorMessage) {
-            changeColor(Color.RED, viewsToChangeColor)
+            changeColor(Color.RED, *viewsToChangeColor)
             errorMessageView.text = errorMessage
             errorMessageView.visibility = View.VISIBLE
         } else {
-            changeColor(Color.BLACK, viewsToChangeColor)
+            changeColor(Color.BLACK, *viewsToChangeColor)
             errorMessageView.visibility = View.INVISIBLE
         }
     }
 
-    private fun changeColor(color: Int, views: Array<out View>) {
+    private fun changeColor(color: Int, vararg views: View) {
         views.forEach {
             if (it is TextView)
                 it.setTextColor(color)
