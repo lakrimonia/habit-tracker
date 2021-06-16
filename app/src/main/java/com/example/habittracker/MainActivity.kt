@@ -16,7 +16,6 @@ import com.example.habittracker.habitcreatingoredititng.HabitCreatingOrEditingFr
 import com.example.habittracker.habitcreatingoredititng.OnBackPressedListener
 import com.example.habittracker.mainpage.MainPageFragment
 import com.google.android.material.navigation.NavigationView
-import java.util.*
 
 class MainActivity : AppCompatActivity(), MainActivityCallback,
     NavigationView.OnNavigationItemSelectedListener {
@@ -24,7 +23,6 @@ class MainActivity : AppCompatActivity(), MainActivityCallback,
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val q = Stack<Int>()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root

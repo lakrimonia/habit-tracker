@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.Habit
 import com.example.habittracker.R
@@ -18,7 +19,7 @@ class HabitsAdapter(
     private val habitCompletedButtonOnClick: (Habit) -> Unit,
     private val editHabitOnClick: (Habit) -> Unit,
     private val deleteHabitOnClick: (Habit) -> Unit
-) : RecyclerView.Adapter<HabitsAdapter.HabitsViewHolder>() {
+) : ListAdapter<Habit, HabitsAdapter.HabitsViewHolder>(HabitDiffCallback()) {
     class HabitsViewHolder(
         private val binding: HabitItemBinding,
         private val habitCompletedButtonOnClick: (Habit) -> Unit,
